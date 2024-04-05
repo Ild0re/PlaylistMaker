@@ -13,17 +13,16 @@
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/back_to_main"
+            android:id="@+id/buttonBackToMenu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:backgroundTint="@color/white"
             android:src="@drawable/arrowback" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="13"
+            android:layout_weight="1"
             android:backgroundTint="@color/white"
             android:text="@string/settings"
             android:textSize="@dimen/primary_text_size"
@@ -37,7 +36,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="57dp"
-        android:layout_marginLeft="16dp">
+        android:layout_marginLeft="@dimen/screen_padding">
 
         <TextView
             android:layout_width="wrap_content"
@@ -61,8 +60,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="42dp"
-        android:layout_marginLeft="16dp">
+        android:layout_marginTop="@dimen/row_padding"
+        android:layout_marginLeft="@dimen/screen_padding">
 
         <TextView
             android:layout_width="wrap_content"
@@ -75,8 +74,8 @@
             android:gravity="start"/>
 
         <ImageButton
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size"
             android:layout_weight="1"
             android:backgroundTint="@color/white"
             android:src="@drawable/share"
@@ -88,8 +87,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="42dp"
-        android:layout_marginLeft="16dp">
+        android:layout_marginTop="@dimen/row_padding"
+        android:layout_marginLeft="@dimen/screen_padding">
 
         <TextView
             android:layout_width="wrap_content"
@@ -102,8 +101,8 @@
             android:gravity="start"/>
 
         <ImageButton
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size"
             android:layout_weight="1"
             android:backgroundTint="@color/white"
             android:src="@drawable/group"
@@ -115,8 +114,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="42dp"
-        android:layout_marginLeft="16dp">
+        android:layout_marginTop="@dimen/row_padding"
+        android:layout_marginLeft="@dimen/screen_padding">
 
         <TextView
             android:layout_width="wrap_content"
@@ -129,8 +128,8 @@
             android:gravity="start"/>
 
         <ImageButton
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="@dimen/button_size"
             android:layout_weight="1"
             android:backgroundTint="@color/white"
             android:src="@drawable/arrowforward"

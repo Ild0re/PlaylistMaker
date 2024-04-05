@@ -16,15 +16,9 @@
         android:textColor="@color/white"
         android:textSize="@dimen/primary_text_size" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="28dp"
-        android:orientation="vertical">
-
         <Button
-            android:id="@+id/search"
+            android:id="@+id/buttonSearch"
+            android:layout_marginTop="40dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -36,11 +30,11 @@
             app:cornerRadius="@dimen/screen_padding"
             app:icon="@drawable/search"
             app:iconGravity="textStart"
-            app:iconPadding="8dp"
+            app:iconPadding="@dimen/icon_padding"
             app:iconTint="@color/black" />
 
         <Button
-            android:id="@+id/library"
+            android:id="@+id/buttonLibrary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -52,11 +46,12 @@
             app:cornerRadius="@dimen/screen_padding"
             app:icon="@drawable/library"
             app:iconGravity="textStart"
-            app:iconPadding="8dp"
+            app:iconPadding="@dimen/icon_padding"
             app:iconTint="@color/black" />
 
         <Button
-            android:id="@+id/settings"
+            android:id="@+id/buttonSettings"
+            android:layout_marginBottom="28dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -68,8 +63,7 @@
             app:cornerRadius="@dimen/screen_padding"
             app:icon="@drawable/settings"
             app:iconGravity="textStart"
-            app:iconPadding="8dp"
+            app:iconPadding="@dimen/icon_padding"
             app:iconTint="@color/black" />
-    </LinearLayout>
 
 </LinearLayout>

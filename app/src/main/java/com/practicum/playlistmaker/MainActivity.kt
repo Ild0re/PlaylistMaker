@@ -11,9 +11,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val buttonSearch = findViewById<Button>(R.id.search)
-        val buttonLibrary = findViewById<Button>(R.id.library)
-        val buttonSettings = findViewById<Button>(R.id.settings)
+        val buttonSearch = findViewById<Button>(R.id.buttonSearch)
+        val buttonLibrary = findViewById<Button>(R.id.buttonLibrary)
+        val buttonSettings = findViewById<Button>(R.id.buttonSettings)
 
         val ButtonClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
