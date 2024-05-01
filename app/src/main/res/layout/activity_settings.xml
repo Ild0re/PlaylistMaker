@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:theme="@style/Theme.PlaylistMaker"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -16,18 +17,18 @@
             android:id="@+id/buttonBackToMenu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/white"
-            android:src="@drawable/arrowback" />
+            android:backgroundTint="?attr/colorSecondary"
+            android:src="@drawable/arrowback"
+            app:tint="?attr/colorOnSecondary" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:backgroundTint="@color/white"
+            android:layout_marginTop="4dp"
+            style="@style/MessageTextStyle"
             android:text="@string/settings"
-            android:textSize="@dimen/primary_text_size"
-            android:textColor="@color/black"
-            android:gravity="start"/>
+            android:textSize="@dimen/primary_text_size" />
 
     </LinearLayout>
 
@@ -42,17 +43,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="13"
-            android:backgroundTint="@color/white"
-            android:text="@string/night_theme"
-            android:textSize="@dimen/secondary_text_size"
-            android:textColor="@color/black"
-            android:gravity="start"/>
+            style="@style/MessageTextStyle"
+            android:text="@string/night_theme" />
 
         <Switch
+            style="@style/ButtonSettingStyle"
+            android:id="@+id/switchButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="end"/>
+            android:checked="false"
+            android:trackTint="?attr/colorSecondaryVariant"
+            android:thumbTint="?attr/colorSecondaryVariant"/>
 
     </LinearLayout>
 
@@ -67,19 +68,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="13"
-            android:backgroundTint="@color/white"
             android:text="@string/share"
-            android:textSize="@dimen/secondary_text_size"
-            android:textColor="@color/black"
-            android:gravity="start"/>
+            style="@style/MessageTextStyle"/>
 
         <ImageButton
-            android:layout_width="@dimen/button_size"
-            android:layout_height="@dimen/button_size"
-            android:layout_weight="1"
-            android:backgroundTint="@color/white"
-            android:src="@drawable/share"
-            android:gravity="end"/>
+            style="@style/ButtonSettingStyle"
+            android:id="@+id/buttonShare"
+            android:src="@drawable/share" />
 
     </LinearLayout>
 
@@ -94,19 +89,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="13"
-            android:backgroundTint="@color/white"
             android:text="@string/support"
-            android:textSize="@dimen/secondary_text_size"
-            android:textColor="@color/black"
-            android:gravity="start"/>
+            style="@style/MessageTextStyle"/>
 
         <ImageButton
-            android:layout_width="@dimen/button_size"
-            android:layout_height="@dimen/button_size"
-            android:layout_weight="1"
-            android:backgroundTint="@color/white"
-            android:src="@drawable/group"
-            android:gravity="end"/>
+            style="@style/ButtonSettingStyle"
+            android:id="@+id/buttonSupport"
+            android:src="@drawable/group" />
 
     </LinearLayout>
 
@@ -121,19 +110,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="13"
-            android:backgroundTint="@color/white"
             android:text="@string/doc"
-            android:textSize="@dimen/secondary_text_size"
-            android:textColor="@color/black"
-            android:gravity="start"/>
+            style="@style/MessageTextStyle"/>
 
         <ImageButton
-            android:layout_width="@dimen/button_size"
-            android:layout_height="@dimen/button_size"
-            android:layout_weight="1"
-            android:backgroundTint="@color/white"
-            android:src="@drawable/arrowforward"
-            android:gravity="end"/>
+            style="@style/ButtonSettingStyle"
+            android:id="@+id/userDoc"
+            android:src="@drawable/arrowforward"/>
 
     </LinearLayout>
 

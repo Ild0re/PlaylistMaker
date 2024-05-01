@@ -8,4 +8,10 @@
     <string name="doc">Пользовательское соглашение</string>
     <string name="Searching">Поиск</string>
     <string name="Media_library">Медиатека</string>
+    <string name="ButtonShare">Выберите приложение для отправки</string>
+    <string name="buttonSupport">Сообщение разработчикам и разработчицам приложения Playlist Maker</string>
+    <string name="mail_body_message">Спасибо разработчикам и разработчицам за крутое приложение!</string>
+    <string name="linkLicense">https://yandex.ru/legal/practicum_offer/</string>
+    <string name="linkShare">https://practicum.yandex.ru/android-developer/?from=catalog</string>
+    <string name="forMails">mailto:</string>
 </resources>
