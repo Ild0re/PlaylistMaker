@@ -35,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/icon_padding"
-        android:minHeight="30dp"
+        android:minHeight="32dp"
         android:orientation="horizontal"
         android:background="@drawable/edittext_back">
 
