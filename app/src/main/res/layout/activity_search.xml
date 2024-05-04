@@ -31,47 +31,53 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/icon_padding"
+        android:minHeight="30dp"
         android:orientation="horizontal"
         android:background="@drawable/edittext_back">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/icon"
-            android:layout_width="18dp"
-            android:layout_height="16dp"
-            app:srcCompat="@drawable/search"
-            android:layout_gravity="center"
-            android:layout_margin="@dimen/icon_padding"
-            android:tint="?attr/colorPrimaryVariant"/>
 
-        <EditText
-            android:id="@+id/inputEditText"
-            style="@style/MessageTextStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center"
-            android:padding="@dimen/icon_padding"
-            android:hint="@string/Searching"
-            android:inputType="text"
-            android:maxLength="15"
-            android:maxLines="1"
-            android:textColor="@color/black"
-            android:textColorHint="?attr/colorPrimaryVariant" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/icon"
+                android:layout_width="18dp"
+                android:layout_height="16dp"
+                app:srcCompat="@drawable/search"
+                android:layout_gravity="start|center"
+                android:layout_marginLeft="@dimen/icon_padding"
+                android:tint="?attr/colorPrimaryVariant"/>
+
+            <EditText
+                android:id="@+id/inputEditText"
+                style="@style/MessageTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="@dimen/button_size"
+                android:background="@android:color/transparent"
+                android:hint="@string/Searching"
+                android:inputType="text"
+                android:maxLength="25"
+                android:maxLines="1"
+                android:textColor="@color/black"
+                android:textColorHint="?attr/colorPrimaryVariant"
+                android:textCursorDrawable="@color/blue" />
+
 
         <ImageButton
             style="ButtonSettingStyle"
             android:id="@+id/clearButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/baseline_highlight_off_24"
+            android:layout_gravity="end"
+            android:src="@drawable/cancel"
             android:backgroundTint="@color/background_gray"
-            android:visibility="gone" />
+            android:visibility="gone"
+            app:tint="?attr/colorPrimaryVariant" />
 
-    </LinearLayout>
+    </FrameLayout>
 
 
 </LinearLayout>
