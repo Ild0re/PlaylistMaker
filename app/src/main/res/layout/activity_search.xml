@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:theme="@style/Theme.PlaylistMaker"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/screen_padding">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/buttonBackToMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/colorSecondary"
+            android:src="@drawable/arrowback"
+            app:tint="?attr/colorOnSecondary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginTop="4dp"
+            style="@style/MessageTextStyle"
+            android:text="@string/Searching"
+            android:textSize="@dimen/primary_text_size" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/icon_padding"
+        android:minHeight="32dp"
+        android:orientation="horizontal"
+        android:background="@drawable/edittext_back">
+
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/icon"
+                android:layout_width="18dp"
+                android:layout_height="16dp"
+                app:srcCompat="@drawable/search"
+                android:layout_gravity="start|center"
+                android:layout_marginLeft="@dimen/icon_padding"
+                android:tint="?attr/colorPrimaryVariant"/>
+
+            <EditText
+                android:id="@+id/inputEditText"
+                style="@style/MessageTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="@dimen/button_size"
+                android:background="@android:color/transparent"
+                android:hint="@string/Searching"
+                android:inputType="text"
+                android:maxLength="25"
+                android:maxLines="1"
+                android:textColor="@color/black"
+                android:textColorHint="?attr/colorPrimaryVariant"
+                android:textCursorDrawable="@color/blue" />
+
+
+        <ImageButton
+            style="ButtonSettingStyle"
+            android:id="@+id/clearButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:src="@drawable/cancel"
+            android:backgroundTint="@color/background_gray"
+            android:visibility="gone"
+            app:tint="?attr/colorPrimaryVariant" />
+
+    </FrameLayout>
+
+
+</LinearLayout>

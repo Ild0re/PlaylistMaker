@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:theme="@style/Theme.PlaylistMaker"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/screen_padding">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/buttonBackToMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?attr/colorSecondary"
+            android:src="@drawable/arrowback"
+            app:tint="?attr/colorOnSecondary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginTop="4dp"
+            style="@style/MessageTextStyle"
+            android:text="@string/settings"
+            android:textSize="@dimen/primary_text_size" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="57dp"
+        android:layout_marginLeft="@dimen/screen_padding">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="13"
+            style="@style/MessageTextStyle"
+            android:text="@string/night_theme" />
+
+        <Switch
+            style="@style/ButtonSettingStyle"
+            android:id="@+id/switchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:trackTint="?attr/colorSecondaryVariant"
+            android:thumbTint="?attr/colorSecondaryVariant"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/row_padding"
+        android:layout_marginLeft="@dimen/screen_padding">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="13"
+            android:text="@string/share"
+            style="@style/MessageTextStyle"/>
+
+        <ImageButton
+            style="@style/ButtonSettingStyle"
+            android:id="@+id/buttonShare"
+            android:src="@drawable/share" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/row_padding"
+        android:layout_marginLeft="@dimen/screen_padding">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="13"
+            android:text="@string/support"
+            style="@style/MessageTextStyle"/>
+
+        <ImageButton
+            style="@style/ButtonSettingStyle"
+            android:id="@+id/buttonSupport"
+            android:src="@drawable/group" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/row_padding"
+        android:layout_marginLeft="@dimen/screen_padding">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="13"
+            android:text="@string/doc"
+            style="@style/MessageTextStyle"/>
+
+        <ImageButton
+            style="@style/ButtonSettingStyle"
+            android:id="@+id/userDoc"
+            android:src="@drawable/arrowforward"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>
