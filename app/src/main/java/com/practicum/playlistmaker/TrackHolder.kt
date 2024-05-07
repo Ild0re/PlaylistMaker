@@ -20,7 +20,7 @@ class TrackViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         songTime.text = item.trackTime
         Glide.with(itemView)
             .load(item.artworkUrl100)
-            .placeholder(R.drawable.image)
+            .placeholder(R.drawable.placeholder)
             .centerCrop()
             .transform(
                 RoundedCorners(4))

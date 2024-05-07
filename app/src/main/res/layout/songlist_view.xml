@@ -2,10 +2,11 @@
 <LinearLayout android:id="@+id/rootLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:layout_margin="13dp">
+    android:layout_margin="12dp">
 
     <ImageView
         android:id="@+id/album_image"
@@ -29,7 +30,7 @@
         android:layout_gravity="start"
         android:ellipsize="end"
         android:maxLines="1"
-        android:text="Text text text"/>
+        tools:text="Track Name"/>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -42,7 +43,7 @@
                 style="@style/SongStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="text"/>
+                tools:text="Track Singer"/>
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -55,7 +56,7 @@
                 style="@style/SongStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="text"/>
+                tools:text="Track Number"/>
 
         </LinearLayout>
 
