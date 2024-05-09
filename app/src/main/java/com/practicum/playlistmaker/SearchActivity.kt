@@ -9,6 +9,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageButton
+import androidx.recyclerview.widget.RecyclerView
 
 class SearchActivity : AppCompatActivity() {
 
@@ -30,6 +31,19 @@ class SearchActivity : AppCompatActivity() {
         val buttonBack = findViewById<ImageButton>(R.id.buttonBackToMenu)
         val searchEditText = findViewById<EditText>(R.id.inputEditText)
         val clearButton = findViewById<ImageButton>(R.id.clearButton)
+
+        val songlistAdapter = TrackAdapter(
+            listOf(
+                Track(getString(R.string.nirvana_song), getString(R.string.nirvana), getString(R.string.nirvana_num), getString(R.string.nirvana_url)),
+                Track(getString(R.string.jackson_song), getString(R.string.jackson), getString(R.string.jackson_num), getString(R.string.jackson_url)),
+                Track(getString(R.string.beegees_song), getString(R.string.beegees), getString(R.string.beegees_num), getString(R.string.beegees_url)),
+                Track(getString(R.string.zeppelin_song), getString(R.string.zeppelin), getString(R.string.zeppelin_num), getString(R.string.zeppelin_url)),
+                Track(getString(R.string.guns_and_roses_song), getString(R.string.guns_and_roses), getString(R.string.guns_and_roses_num), getString(R.string.guns_and_roses_url))
+            )
+        )
+
+        val rvTrack = findViewById<RecyclerView>(R.id.recyclerView)
+        rvTrack.adapter = songlistAdapter
 
         searchEditText.getBackground().clearColorFilter()
 

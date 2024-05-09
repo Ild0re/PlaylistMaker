@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/rootLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_margin="12dp">
+
+    <ImageView
+        android:id="@+id/album_image"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_gravity="start" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:layout_gravity="center">
+
+    <TextView
+        android:id="@+id/song_name"
+        style="SongTitleStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:ellipsize="end"
+        android:maxLines="1"
+        tools:text="Track Name"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <TextView
+                android:id="@+id/singer"
+                style="@style/SongStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Track Singer"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic"
+                app:tint="?attr/colorSecondaryVariant" />
+
+            <TextView
+                android:id="@+id/song_num"
+                style="@style/SongStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Track Number"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/buttonForward"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center"
+        android:backgroundTint="?attr/colorSecondary"
+        android:src="@drawable/arrowforward"
+        app:tint="?attr/colorOnSecondary" />
+
+</LinearLayout>
