@@ -22,6 +22,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
+import java.util.ArrayList
 import java.util.Locale
 
 class SearchActivity : AppCompatActivity() {
@@ -37,13 +38,14 @@ class SearchActivity : AppCompatActivity() {
         .build()
 
     private val trackService = retrofit.create(SongAPI::class.java)
-    private val formatted = SimpleDateFormat("mm:ss", Locale.getDefault()).format(293000L)
-
+    private val trackList = ArrayList<Track>()
     private val songlistAdapter = TrackAdapter(trackList)
+
+
 
     private lateinit var placeholderMessage: TextView
     private lateinit var placeholderImage: ImageView
-    private lateinit var trackList: ArrayList<Track>
+    private lateinit var rvTrack: RecyclerView
 
     private fun isDarkThemeEnabled(): Boolean {
         if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
@@ -63,10 +65,12 @@ class SearchActivity : AppCompatActivity() {
         if (text.isNotEmpty()) {
             placeholderMessage.visibility = View.VISIBLE
             placeholderImage.visibility = View.VISIBLE
+            rvTrack.visibility = View.GONE
             trackList.clear()
             songlistAdapter.notifyDataSetChanged()
             placeholderMessage.text = text
         } else {
+            rvTrack.visibility = View.VISIBLE
             placeholderMessage.visibility = View.GONE
             placeholderImage.visibility = View.GONE
         }
@@ -84,10 +88,11 @@ class SearchActivity : AppCompatActivity() {
         val buttonBack = findViewById<ImageButton>(R.id.buttonBackToMenu)
         val searchEditText = findViewById<EditText>(R.id.inputEditText)
         val clearButton = findViewById<ImageButton>(R.id.clearButton)
+        placeholderMessage = findViewById(R.id.placeholderText)
+        placeholderImage = findViewById(R.id.placeholderImage)
+        rvTrack = findViewById(R.id.recyclerView)
 
 
-
-        val rvTrack = findViewById<RecyclerView>(R.id.recyclerView)
         rvTrack.adapter = songlistAdapter
 
         searchEditText.background.clearColorFilter()
@@ -121,6 +126,11 @@ class SearchActivity : AppCompatActivity() {
             val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(clearButton.windowToken, 0)
             clearButton.visibility = View.GONE
+            trackList.clear()
+            songlistAdapter.notifyDataSetChanged()
+            rvTrack.visibility = View.VISIBLE
+            placeholderMessage.visibility = View.GONE
+            placeholderImage.visibility = View.GONE
         }
 
         searchEditText.setOnEditorActionListener { _, actionId, _ ->
