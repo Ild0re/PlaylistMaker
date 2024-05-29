@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:theme="@style/Theme.PlaylistMaker"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="@dimen/screen_padding">
+    android:padding="@dimen/screen_padding"
+    android:theme="@style/Theme.PlaylistMaker">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,11 +21,11 @@
             app:tint="?attr/colorOnSecondary" />
 
         <TextView
+            style="@style/MessageTextStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginTop="4dp"
-            style="@style/MessageTextStyle"
+            android:layout_weight="1"
             android:text="@string/Searching"
             android:textSize="@dimen/primary_text_size" />
 
@@ -35,45 +35,47 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/icon_padding"
+        android:background="@drawable/edittext_back"
         android:minHeight="32dp"
-        android:orientation="horizontal"
-        android:background="@drawable/edittext_back">
+        android:orientation="horizontal">
 
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/icon"
-                android:layout_width="18dp"
-                android:layout_height="16dp"
-                app:srcCompat="@drawable/search"
-                android:layout_gravity="start|center"
-                android:layout_marginLeft="@dimen/icon_padding"
-                android:tint="?attr/colorPrimaryVariant"/>
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/icon"
+            android:layout_width="18dp"
+            android:layout_height="16dp"
+            android:layout_gravity="start|center"
+            android:layout_marginLeft="@dimen/icon_padding"
+            android:tint="?attr/colorPrimaryVariant"
+            app:srcCompat="@drawable/search" />
 
-            <EditText
-                android:id="@+id/inputEditText"
-                style="@style/MessageTextStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginLeft="@dimen/button_size"
-                android:background="@android:color/transparent"
-                android:hint="@string/Searching"
-                android:inputType="text"
-                android:maxLength="25"
-                android:maxLines="1"
-                android:textColor="@color/black"
-                android:textColorHint="?attr/colorPrimaryVariant"
-                android:textCursorDrawable="@color/blue" />
+        <EditText
+            android:id="@+id/inputEditText"
+            style="@style/MessageTextStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="@dimen/button_size"
+            android:background="@android:color/transparent"
+            android:hint="@string/Searching"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:maxLength="25"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textColor="@color/black"
+            android:textColorHint="?attr/colorPrimaryVariant"
+            android:textCursorDrawable="@color/blue" />
 
 
         <ImageButton
-            style="ButtonSettingStyle"
             android:id="@+id/clearButton"
+            style="ButtonSettingStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:src="@drawable/cancel"
             android:backgroundTint="@color/background_gray"
+            android:src="@drawable/cancel"
             android:visibility="gone"
             app:tint="?attr/colorPrimaryVariant" />
 
@@ -83,7 +85,30 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+        android:visibility="visible"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    <ImageView
+        android:id="@+id/placeholderImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="102dp"
+        android:src="@drawable/light_mode_1"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/placeholderText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="19dp"
+        android:fontFamily="@font/ys_display_medium"
+        android:gravity="center"
+        android:text="@string/nothing_to_show"
+        android:textColor="?attr/colorOnSecondary"
+        android:textFontWeight="400"
+        android:textSize="19sp"
+        android:visibility="gone" />
 
 
 </LinearLayout>

@@ -1,22 +1,75 @@
 package com.practicum.playlistmaker
 
 import android.content.Context
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class SearchActivity : AppCompatActivity() {
 
     private var text = ""
+
+    private val trackBaseUrl = "https://itunes.apple.com"
+    private val retrofit = Retrofit.Builder()
+        .baseUrl(trackBaseUrl)
+        .addConverterFactory(
+            GsonConverterFactory
+            .create())
+        .build()
+
+    private val trackService = retrofit.create(SongAPI::class.java)
+    private val formatted = SimpleDateFormat("mm:ss", Locale.getDefault()).format(293000L)
+
+    private val songlistAdapter = TrackAdapter(trackList)
+
+    private lateinit var placeholderMessage: TextView
+    private lateinit var placeholderImage: ImageView
+    private lateinit var trackList: ArrayList<Track>
+
+    private fun isDarkThemeEnabled(): Boolean {
+        if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString("text", text)
+    }
+
+    private fun showMessage(text: String) {
+        if (text.isNotEmpty()) {
+            placeholderMessage.visibility = View.VISIBLE
+            placeholderImage.visibility = View.VISIBLE
+            trackList.clear()
+            songlistAdapter.notifyDataSetChanged()
+            placeholderMessage.text = text
+        } else {
+            placeholderMessage.visibility = View.GONE
+            placeholderImage.visibility = View.GONE
+        }
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -32,20 +85,12 @@ class SearchActivity : AppCompatActivity() {
         val searchEditText = findViewById<EditText>(R.id.inputEditText)
         val clearButton = findViewById<ImageButton>(R.id.clearButton)
 
-        val songlistAdapter = TrackAdapter(
-            listOf(
-                Track(getString(R.string.nirvana_song), getString(R.string.nirvana), getString(R.string.nirvana_num), getString(R.string.nirvana_url)),
-                Track(getString(R.string.jackson_song), getString(R.string.jackson), getString(R.string.jackson_num), getString(R.string.jackson_url)),
-                Track(getString(R.string.beegees_song), getString(R.string.beegees), getString(R.string.beegees_num), getString(R.string.beegees_url)),
-                Track(getString(R.string.zeppelin_song), getString(R.string.zeppelin), getString(R.string.zeppelin_num), getString(R.string.zeppelin_url)),
-                Track(getString(R.string.guns_and_roses_song), getString(R.string.guns_and_roses), getString(R.string.guns_and_roses_num), getString(R.string.guns_and_roses_url))
-            )
-        )
+
 
         val rvTrack = findViewById<RecyclerView>(R.id.recyclerView)
         rvTrack.adapter = songlistAdapter
 
-        searchEditText.getBackground().clearColorFilter()
+        searchEditText.background.clearColorFilter()
 
         buttonBack.setOnClickListener {
             finish()
@@ -76,6 +121,51 @@ class SearchActivity : AppCompatActivity() {
             val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(clearButton.windowToken, 0)
             clearButton.visibility = View.GONE
+        }
+
+        searchEditText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                trackService.search(searchEditText.text.toString())?.enqueue(object: Callback<Song?> {
+                    override fun onResponse(p0: Call<Song?>, response: Response<Song?>) {
+                        when (response.code()) {
+                            200 -> {
+                                if (response.body()?.results?.isNotEmpty() == true) {
+                                    trackList.clear()
+                                    trackList.addAll(response.body()?.results!!)
+                                    songlistAdapter.notifyDataSetChanged()
+                                } else {
+                                    showMessage(getString(R.string.nothing_to_show))
+                                    if (isDarkThemeEnabled()) {
+                                        placeholderImage.setImageResource(R.drawable.dark_mode)
+                                    } else {
+                                        placeholderImage.setImageResource(R.drawable.light_mode_1)
+                                    }
+                                }
+
+                            }
+                            else ->  {
+                                showMessage(getString(R.string.internet_issue))
+                                if (isDarkThemeEnabled()) {
+                                    placeholderImage.setImageResource(R.drawable.dark_mode_1)
+                                } else {
+                                    placeholderImage.setImageResource(R.drawable.light_mode)
+                                }
+                            }
+                        }
+                    }
+
+                    override fun onFailure(p0: Call<Song?>, p1: Throwable) {
+                        showMessage(getString(R.string.internet_issue))
+                        if (isDarkThemeEnabled()) {
+                            placeholderImage.setImageResource(R.drawable.dark_mode_1)
+                        } else {
+                            placeholderImage.setImageResource(R.drawable.light_mode_1)
+                        }
+                    }
+
+                })
+            }
+            false
         }
 
 
