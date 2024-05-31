@@ -19,7 +19,7 @@ class TrackViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
     fun bind(item: Track) {
         songName.text = item.trackName
         singer.text = item.artistName
-        songTime.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(item.trackTime)
+        songTime.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(item.trackTimeMillis)
         Glide.with(itemView)
             .load(item.artworkUrl100)
             .placeholder(R.drawable.placeholder)

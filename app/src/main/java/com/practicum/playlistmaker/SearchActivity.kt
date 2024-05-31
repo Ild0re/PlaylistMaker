@@ -139,6 +139,9 @@ class SearchActivity : AppCompatActivity() {
                     override fun onResponse(p0: Call<Song?>, response: Response<Song?>) {
                         when (response.code()) {
                             200 -> {
+                                rvTrack.visibility = View.VISIBLE
+                                placeholderMessage.visibility = View.GONE
+                                placeholderImage.visibility = View.GONE
                                 if (response.body()?.results?.isNotEmpty() == true) {
                                     trackList.clear()
                                     trackList.addAll(response.body()?.results!!)
@@ -178,6 +181,11 @@ class SearchActivity : AppCompatActivity() {
                 })
         }
 
+        refreshButton.setOnClickListener {
+            refreshButton.visibility = View.GONE
+            sendRequest()
+        }
+
         searchEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 sendRequest()
@@ -185,10 +193,7 @@ class SearchActivity : AppCompatActivity() {
             false
         }
 
-        refreshButton.setOnClickListener {
-            sendRequest()
-            refreshButton.visibility = View.GONE
-        }
+
 
 
     }

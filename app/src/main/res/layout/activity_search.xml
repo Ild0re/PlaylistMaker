@@ -122,6 +122,7 @@
         android:textFontWeight="500"
         android:textSize="14sp"
         android:fontFamily="@font/ys_display_medium"
+        android:textColor="?attr/colorSecondary"
         android:visibility="gone"/>
 
 
