@@ -88,6 +88,7 @@ class SearchActivity : AppCompatActivity() {
         val buttonBack = findViewById<ImageButton>(R.id.buttonBackToMenu)
         val searchEditText = findViewById<EditText>(R.id.inputEditText)
         val clearButton = findViewById<ImageButton>(R.id.clearButton)
+        val refreshButton = findViewById<Button>(R.id.button_refresh)
         placeholderMessage = findViewById(R.id.placeholderText)
         placeholderImage = findViewById(R.id.placeholderImage)
         rvTrack = findViewById(R.id.recyclerView)
@@ -133,8 +134,7 @@ class SearchActivity : AppCompatActivity() {
             placeholderImage.visibility = View.GONE
         }
 
-        searchEditText.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
+        fun sendRequest() {
                 trackService.search(searchEditText.text.toString())?.enqueue(object: Callback<Song?> {
                     override fun onResponse(p0: Call<Song?>, response: Response<Song?>) {
                         when (response.code()) {
@@ -154,6 +154,7 @@ class SearchActivity : AppCompatActivity() {
 
                             }
                             else ->  {
+                                refreshButton.visibility = View.VISIBLE
                                 showMessage(getString(R.string.internet_issue))
                                 if (isDarkThemeEnabled()) {
                                     placeholderImage.setImageResource(R.drawable.dark_mode_1)
@@ -165,20 +166,29 @@ class SearchActivity : AppCompatActivity() {
                     }
 
                     override fun onFailure(p0: Call<Song?>, p1: Throwable) {
+                        refreshButton.visibility = View.VISIBLE
                         showMessage(getString(R.string.internet_issue))
                         if (isDarkThemeEnabled()) {
                             placeholderImage.setImageResource(R.drawable.dark_mode_1)
                         } else {
-                            placeholderImage.setImageResource(R.drawable.light_mode_1)
+                            placeholderImage.setImageResource(R.drawable.light_mode)
                         }
                     }
 
                 })
+        }
+
+        searchEditText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                sendRequest()
             }
             false
         }
 
-
+        refreshButton.setOnClickListener {
+            sendRequest()
+            refreshButton.visibility = View.GONE
+        }
 
 
     }
