@@ -14,7 +14,6 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -44,8 +43,18 @@ class SearchActivity : AppCompatActivity() {
 
     private val trackService = retrofit.create(SongAPI::class.java)
     private val trackList = ArrayList<Track>()
-    private val songlistAdapter = TrackAdapter(trackList)
-    private val historySongListAdapter = TrackAdapter((applicationContext as TrackAdapter).objects)
+    private var historyList = ArrayList<Track>()
+    private val songlistAdapter = TrackAdapter(trackList) { track ->
+        if (track !in historyList) {
+            historyList.add(0, track)
+            if (historyList.size > 10) {
+                historyList.removeAt(9)
+            }
+        } else {
+            historyList.remove(track)
+            historyList.add(0, track)
+        }
+    }
 
 
 
@@ -104,11 +113,10 @@ class SearchActivity : AppCompatActivity() {
         historyText = findViewById(R.id.history_text)
         rvHistory = findViewById(R.id.recyclerViewHistory)
 
-
-        rvHistory.adapter = historySongListAdapter
+        rvHistory.adapter = songlistAdapter
         rvTrack.adapter = songlistAdapter
 
-        if (historySongListAdapter.objects.isEmpty()) {
+        if (historyList.isEmpty()) {
             historyText.visibility = View.GONE
             rvHistory.visibility = View.GONE
             cleanHistoryButton.visibility = View.GONE
@@ -134,8 +142,8 @@ class SearchActivity : AppCompatActivity() {
         }
 
         cleanHistoryButton.setOnClickListener {
-            historySongListAdapter.objects.clear()
-            historySongListAdapter.notifyDataSetChanged()
+            historyList.clear()
+            songlistAdapter.notifyDataSetChanged()
             historyText.visibility = View.GONE
             rvHistory.visibility = View.GONE
             cleanHistoryButton.visibility = View.GONE
@@ -239,7 +247,8 @@ class SearchActivity : AppCompatActivity() {
 
         val spTracks = sharedPreferences.getString(HISTORY_KEY, null)
         if (spTracks != null) {
-            historySongListAdapter.objects = createTracksListFromJson(spTracks)
+            historyList.add(0, createTracksListFromJson(spTracks))
+            songlistAdapter.notifyItemChanged(0)
         }
 
     }
@@ -249,17 +258,16 @@ class SearchActivity : AppCompatActivity() {
 
         val sharedPreferences = getSharedPreferences(HISTORY_PREFERENCES, MODE_PRIVATE)
         sharedPreferences.edit()
-            .putString(HISTORY_KEY, createJsonFromTrackList(historySongListAdapter.objects))
+            .putString(HISTORY_KEY, createJsonFromTrackList(historyList[0]))
             .apply()
 
     }
 
-    private fun createJsonFromTrackList(tracks: ArrayList<Track>) : String {
+    private fun createJsonFromTrackList(tracks: Track) : String {
         return Gson().toJson(tracks)
     }
 
-    private fun createTracksListFromJson(json: String): ArrayList<Track> {
-        val type = object : TypeToken<ArrayList<Track>>() {}.type
-        return Gson().fromJson(json, type)
+    private fun createTracksListFromJson(json: String): Track{
+        return Gson().fromJson(json, Track::class.java)
     }
 }

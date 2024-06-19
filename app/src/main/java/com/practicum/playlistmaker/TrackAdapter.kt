@@ -3,9 +3,11 @@ package com.practicum.playlistmaker
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import java.util.ArrayList
 
 class TrackAdapter(
-    private val data: List<Track>
+    private val data: List<Track>,
+    private val onTrackClickListener: (Track) -> Unit,
 ) : RecyclerView.Adapter<TrackViewHolder> () {
 
     var objects = ArrayList<Track>()
@@ -16,14 +18,10 @@ class TrackAdapter(
     }
 
     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
-        holder.bind(data[position])
+        val track = data[position]
+        holder.bind(track)
         holder.itemView.setOnClickListener {
-            if (data[position] !in objects) {
-                objects.add(0, data[position])
-                if (objects.size > 10) {
-                    objects.removeAt(9)
-                }
-            }
+            onTrackClickListener.invoke(track)
         }
     }
 

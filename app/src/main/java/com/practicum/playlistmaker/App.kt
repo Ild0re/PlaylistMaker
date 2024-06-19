@@ -3,10 +3,8 @@ package com.practicum.playlistmaker
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
 
-
 const val PREFERENCES = "dark_mode_preferences"
 const val DARK_THEME = "dark_theme"
-
 class App : Application() {
 
     var darkTheme = false
