@@ -247,7 +247,7 @@ class SearchActivity : AppCompatActivity() {
 
         val spTracks = sharedPreferences.getString(HISTORY_KEY, null)
         if (spTracks != null) {
-            historyList.add(0, createTracksListFromJson(spTracks))
+            historyList = createTracksListFromJson(spTracks)
             songlistAdapter.notifyItemChanged(0)
         }
 
@@ -258,16 +258,17 @@ class SearchActivity : AppCompatActivity() {
 
         val sharedPreferences = getSharedPreferences(HISTORY_PREFERENCES, MODE_PRIVATE)
         sharedPreferences.edit()
-            .putString(HISTORY_KEY, createJsonFromTrackList(historyList[0]))
+            .putString(HISTORY_KEY, createJsonFromTrackList(historyList))
             .apply()
 
     }
 
-    private fun createJsonFromTrackList(tracks: Track) : String {
+    private fun createJsonFromTrackList(tracks: ArrayList<Track>) : String {
         return Gson().toJson(tracks)
     }
 
-    private fun createTracksListFromJson(json: String): Track{
-        return Gson().fromJson(json, Track::class.java)
+    private fun createTracksListFromJson(json: String): ArrayList<Track>{
+        val type = object : TypeToken<ArrayList<Track>>() {}.type
+        return Gson().fromJson(json, type)
     }
 }
