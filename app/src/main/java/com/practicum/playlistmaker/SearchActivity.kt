@@ -1,6 +1,7 @@
 package com.practicum.playlistmaker
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -244,12 +245,19 @@ class SearchActivity : AppCompatActivity() {
             false
         }
 
+        var listener: SharedPreferences.OnSharedPreferenceChangeListener
+        listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+            if (key == HISTORY_KEY) {
+                val spTracks = sharedPreferences.getString(HISTORY_KEY, null)
+                if (spTracks != null) {
+                    historyList = createTracksListFromJson(spTracks)
+                    songlistAdapter.notifyItemChanged(0)
+                }
+            }
 
-        val spTracks = sharedPreferences.getString(HISTORY_KEY, null)
-        if (spTracks != null) {
-            historyList = createTracksListFromJson(spTracks)
-            songlistAdapter.notifyItemChanged(0)
         }
+
+        sharedPreferences.registerOnSharedPreferenceChangeListener(listener)
 
     }
 
