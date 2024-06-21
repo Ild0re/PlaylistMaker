@@ -45,9 +45,7 @@ class SearchActivity : AppCompatActivity() {
     private val trackService = retrofit.create(SongAPI::class.java)
     private val trackList = ArrayList<Track>()
     private var historyList = ArrayList<Track>()
-    private val songlistAdapter = TrackAdapter(trackList) { track ->
-    }
-    private val historySonglistAdapter = TrackAdapter(historyList) { track ->
+    private val songlistAdapter = TrackAdapter(trackList) {track ->
         if (track !in historyList) {
             historyList.add(0, track)
             if (historyList.size > 10) {
@@ -57,7 +55,17 @@ class SearchActivity : AppCompatActivity() {
             historyList.remove(track)
             historyList.add(0, track)
         }
-        this.rvHistory.adapter?.notifyDataSetChanged()
+    }
+    private val historySonglistAdapter = TrackAdapter(historyList) {track ->
+        if (track !in historyList) {
+            historyList.add(0, track)
+            if (historyList.size > 10) {
+                historyList.removeAt(9)
+            }
+        } else {
+            historyList.remove(track)
+            historyList.add(0, track)
+        }
     }
 
     private lateinit var placeholderMessage: TextView
@@ -184,16 +192,6 @@ class SearchActivity : AppCompatActivity() {
             clearButton.visibility = View.GONE
             trackList.clear()
             songlistAdapter.notifyDataSetChanged()
-            if (historyList.isEmpty()) {
-                historyText.visibility = View.GONE
-                rvHistory.visibility = View.GONE
-                cleanHistoryButton.visibility = View.GONE
-            } else {
-                historySonglistAdapter.notifyDataSetChanged()
-                historyText.visibility = View.VISIBLE
-                rvHistory.visibility = View.VISIBLE
-                cleanHistoryButton.visibility = View.VISIBLE
-            }
             rvTrack.visibility = View.GONE
             placeholderMessage.visibility = View.GONE
             placeholderImage.visibility = View.GONE
@@ -261,6 +259,7 @@ class SearchActivity : AppCompatActivity() {
 
         val spTracks = sharedPreferences.getString(HISTORY_KEY, null)
         if (spTracks != null) {
+            historyList.clear()
             historyList = createTracksListFromJson(spTracks)
             historySonglistAdapter.notifyDataSetChanged()
         }
@@ -289,4 +288,5 @@ class SearchActivity : AppCompatActivity() {
         val type = object : TypeToken<ArrayList<Track>>() {}.type
         return Gson().fromJson(json, type)
     }
+
 }
