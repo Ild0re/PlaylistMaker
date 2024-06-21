@@ -46,6 +46,8 @@ class SearchActivity : AppCompatActivity() {
     private val trackList = ArrayList<Track>()
     private var historyList = ArrayList<Track>()
     private val songlistAdapter = TrackAdapter(trackList) { track ->
+    }
+    private val historySonglistAdapter = TrackAdapter(historyList) { track ->
         if (track !in historyList) {
             historyList.add(0, track)
             if (historyList.size > 10) {
@@ -56,6 +58,7 @@ class SearchActivity : AppCompatActivity() {
             historyList.add(0, track)
         }
     }
+
 
 
 
@@ -114,14 +117,15 @@ class SearchActivity : AppCompatActivity() {
         historyText = findViewById(R.id.history_text)
         rvHistory = findViewById(R.id.recyclerViewHistory)
 
-        rvHistory.adapter = songlistAdapter
+        rvHistory.adapter = historySonglistAdapter
         rvTrack.adapter = songlistAdapter
 
-        if (historyList.isEmpty()) {
+        if (historyList.size > 0) {
             historyText.visibility = View.GONE
             rvHistory.visibility = View.GONE
             cleanHistoryButton.visibility = View.GONE
         } else {
+            historySonglistAdapter.notifyDataSetChanged()
             historyText.visibility = View.VISIBLE
             rvHistory.visibility = View.VISIBLE
             cleanHistoryButton.visibility = View.VISIBLE
@@ -144,7 +148,7 @@ class SearchActivity : AppCompatActivity() {
 
         cleanHistoryButton.setOnClickListener {
             historyList.clear()
-            songlistAdapter.notifyDataSetChanged()
+            historySonglistAdapter.notifyDataSetChanged()
             historyText.visibility = View.GONE
             rvHistory.visibility = View.GONE
             cleanHistoryButton.visibility = View.GONE
@@ -181,7 +185,11 @@ class SearchActivity : AppCompatActivity() {
             clearButton.visibility = View.GONE
             trackList.clear()
             songlistAdapter.notifyDataSetChanged()
-            rvTrack.visibility = View.VISIBLE
+            rvHistory.visibility = View.VISIBLE
+            historyText.visibility = View.VISIBLE
+            cleanHistoryButton.visibility = View.VISIBLE
+            historySonglistAdapter.notifyDataSetChanged()
+            rvTrack.visibility = View.GONE
             placeholderMessage.visibility = View.GONE
             placeholderImage.visibility = View.GONE
         }
@@ -245,19 +253,16 @@ class SearchActivity : AppCompatActivity() {
             false
         }
 
-        var listener: SharedPreferences.OnSharedPreferenceChangeListener
-        listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            if (key == HISTORY_KEY) {
-                val spTracks = sharedPreferences.getString(HISTORY_KEY, null)
-                if (spTracks != null) {
-                    historyList = createTracksListFromJson(spTracks)
-                    songlistAdapter.notifyItemChanged(0)
-                }
-            }
 
+        val spTracks = sharedPreferences.getString(HISTORY_KEY, null)
+        if (spTracks != null) {
+            historyList = createTracksListFromJson(spTracks)
+            historySonglistAdapter.notifyDataSetChanged()
         }
 
-        sharedPreferences.registerOnSharedPreferenceChangeListener(listener)
+        sharedPreferences.edit()
+            .putString(HISTORY_KEY, createJsonFromTrackList(historyList))
+            .apply()
 
     }
 

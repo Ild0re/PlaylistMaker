@@ -10,8 +10,6 @@ class TrackAdapter(
     private val onTrackClickListener: (Track) -> Unit,
 ) : RecyclerView.Adapter<TrackViewHolder> () {
 
-    var objects = ArrayList<Track>()
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.songlist_view, parent, false)
         return TrackViewHolder(view)
