@@ -59,9 +59,6 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-
-
-
     private lateinit var placeholderMessage: TextView
     private lateinit var placeholderImage: ImageView
     private lateinit var rvTrack: RecyclerView
@@ -117,10 +114,11 @@ class SearchActivity : AppCompatActivity() {
         historyText = findViewById(R.id.history_text)
         rvHistory = findViewById(R.id.recyclerViewHistory)
 
+
         rvHistory.adapter = historySonglistAdapter
         rvTrack.adapter = songlistAdapter
 
-        if (historyList.size > 0) {
+        if (historyList.isEmpty()) {
             historyText.visibility = View.GONE
             rvHistory.visibility = View.GONE
             cleanHistoryButton.visibility = View.GONE
