@@ -57,6 +57,7 @@ class SearchActivity : AppCompatActivity() {
             historyList.remove(track)
             historyList.add(0, track)
         }
+        this.rvHistory.adapter?.notifyDataSetChanged()
     }
 
     private lateinit var placeholderMessage: TextView
@@ -183,10 +184,16 @@ class SearchActivity : AppCompatActivity() {
             clearButton.visibility = View.GONE
             trackList.clear()
             songlistAdapter.notifyDataSetChanged()
-            rvHistory.visibility = View.VISIBLE
-            historyText.visibility = View.VISIBLE
-            cleanHistoryButton.visibility = View.VISIBLE
-            historySonglistAdapter.notifyDataSetChanged()
+            if (historyList.isEmpty()) {
+                historyText.visibility = View.GONE
+                rvHistory.visibility = View.GONE
+                cleanHistoryButton.visibility = View.GONE
+            } else {
+                historySonglistAdapter.notifyDataSetChanged()
+                historyText.visibility = View.VISIBLE
+                rvHistory.visibility = View.VISIBLE
+                cleanHistoryButton.visibility = View.VISIBLE
+            }
             rvTrack.visibility = View.GONE
             placeholderMessage.visibility = View.GONE
             placeholderImage.visibility = View.GONE
