@@ -107,7 +107,8 @@ class SearchActivity : AppCompatActivity() {
         rvHistory.adapter = historySonglistAdapter
         rvTrack.adapter = songlistAdapter
 
-        if (historyList.isEmpty()) {
+        if (historyList.isNullOrEmpty()) {
+            historySonglistAdapter.notifyDataSetChanged()
             historyText.visibility = View.GONE
             rvHistory.visibility = View.GONE
             cleanHistoryButton.visibility = View.GONE
@@ -124,9 +125,9 @@ class SearchActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences(HISTORY_PREFERENCES, MODE_PRIVATE)
 
         searchEditText.setOnFocusChangeListener { view, hasFocus ->
-            historyText.visibility = if (hasFocus && searchEditText.text.isEmpty()) View.VISIBLE else View.GONE
-            rvHistory.visibility = if (hasFocus && searchEditText.text.isEmpty()) View.VISIBLE else View.GONE
-            cleanHistoryButton.visibility = if (hasFocus && searchEditText.text.isEmpty()) View.VISIBLE else View.GONE
+            historyText.visibility = if (hasFocus && searchEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+            rvHistory.visibility = if (hasFocus && searchEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+            cleanHistoryButton.visibility = if (hasFocus && searchEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
         }
 
         buttonBack.setOnClickListener {
@@ -155,9 +156,9 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                historyText.visibility = if (searchEditText.hasFocus() && s?.isEmpty() == true) View.VISIBLE else View.GONE
-                rvHistory.visibility = if (searchEditText.hasFocus() && s?.isEmpty() == true) View.VISIBLE else View.GONE
-                cleanHistoryButton.visibility = if (searchEditText.hasFocus() && s?.isEmpty() == true) View.VISIBLE else View.GONE
+                historyText.visibility = if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+                rvHistory.visibility = if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+                cleanHistoryButton.visibility = if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
             }
         })
 

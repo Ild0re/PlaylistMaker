@@ -109,25 +109,32 @@
         android:text="@string/refresh"
         android:visibility="gone"/>
 
-    <TextView
-        android:id="@+id/history_text"
-        style="@style/PlaceholderText"
-        android:text="@string/history"
-        android:visibility="gone"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewHistory"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_weight="1"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/clean_history"
-        style="@style/TrackButtonStyle"
-        android:padding="10dp"
-        android:text="@string/cleanHistory"
-        android:visibility="gone"/>
+        <TextView
+            android:id="@+id/history_text"
+            style="@style/PlaceholderText"
+            android:text="@string/history"
+            android:visibility="gone"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewHistory"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:visibility="visible"
+            android:layout_weight="1"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        <Button
+            android:id="@+id/clean_history"
+            style="@style/TrackButtonStyle"
+            android:padding="10dp"
+            android:text="@string/cleanHistory"
+            android:visibility="visible"/>
+
+    </LinearLayout>
 
 </LinearLayout>
