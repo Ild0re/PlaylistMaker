@@ -45,28 +45,8 @@ class SearchActivity : AppCompatActivity() {
     private val trackService = retrofit.create(SongAPI::class.java)
     private val trackList = ArrayList<Track>()
     private var historyList = ArrayList<Track>()
-    private val songlistAdapter = TrackAdapter(trackList) {track ->
-        if (track !in historyList) {
-            historyList.add(0, track)
-            if (historyList.size > 10) {
-                historyList.removeAt(9)
-            }
-        } else {
-            historyList.remove(track)
-            historyList.add(0, track)
-        }
-    }
-    private val historySonglistAdapter = TrackAdapter(historyList) {track ->
-        if (track !in historyList) {
-            historyList.add(0, track)
-            if (historyList.size > 10) {
-                historyList.removeAt(9)
-            }
-        } else {
-            historyList.remove(track)
-            historyList.add(0, track)
-        }
-    }
+    private val songlistAdapter = TrackAdapter(trackList, ::onTrackClickListener)
+    private val historySonglistAdapter = TrackAdapter(historyList, ::onTrackClickListener)
 
     private lateinit var placeholderMessage: TextView
     private lateinit var placeholderImage: ImageView
@@ -260,7 +240,7 @@ class SearchActivity : AppCompatActivity() {
         val spTracks = sharedPreferences.getString(HISTORY_KEY, null)
         if (spTracks != null) {
             historyList.clear()
-            historyList = createTracksListFromJson(spTracks)
+            historyList.addAll(createTracksListFromJson(spTracks))
             historySonglistAdapter.notifyDataSetChanged()
         }
 
@@ -287,6 +267,21 @@ class SearchActivity : AppCompatActivity() {
     private fun createTracksListFromJson(json: String): ArrayList<Track>{
         val type = object : TypeToken<ArrayList<Track>>() {}.type
         return Gson().fromJson(json, type)
+    }
+
+    private fun onTrackClickListener(track: Track) {
+        if (track !in historyList) {
+            historyList.add(0, track)
+            historySonglistAdapter.notifyDataSetChanged()
+            if (historyList.size > 10) {
+                historyList.removeLast()
+                historySonglistAdapter.notifyDataSetChanged()
+            }
+        } else {
+            historyList.remove(track)
+            historyList.add(0, track)
+            historySonglistAdapter.notifyDataSetChanged()
+        }
     }
 
 }

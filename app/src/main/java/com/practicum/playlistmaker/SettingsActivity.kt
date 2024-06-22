@@ -13,7 +13,6 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val sharedPref = getSharedPreferences(PREFERENCES, MODE_PRIVATE)
         setContentView(R.layout.activity_settings)
 
         val buttonBack = findViewById<ImageButton>(R.id.buttonBackToMenu)
@@ -22,14 +21,16 @@ class SettingsActivity : AppCompatActivity() {
         val buttonUserDoc = findViewById<ImageButton>(R.id.userDoc)
         val switchDarkTheme = findViewById<SwitchMaterial>(R.id.themeSwitcher)
 
+
+
+
         switchDarkTheme.setOnCheckedChangeListener { switcher, checked ->
             (applicationContext as App).switchTheme(checked)
-            sharedPref.edit()
-                .putBoolean(DARK_THEME, checked)
-                .apply()
         }
+        switchDarkTheme.isChecked = (applicationContext as App).darkTheme
 
-        switchDarkTheme.isChecked = sharedPref.getBoolean(DARK_THEME, false)
+
+
 
         buttonBack.setOnClickListener {
             finish()
