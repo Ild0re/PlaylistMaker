@@ -39,21 +39,20 @@
         android:layout_marginTop="57dp"
         android:layout_marginLeft="@dimen/screen_padding">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/themeSwitcher"
+            android:text="@string/night_theme"
+            android:layout_gravity="start"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="13"
-            style="@style/MessageTextStyle"
-            android:text="@string/night_theme" />
-
-        <Switch
-            style="@style/ButtonSettingStyle"
-            android:id="@+id/switchButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            android:trackTint="?attr/colorSecondaryVariant"
-            android:thumbTint="?attr/colorSecondaryVariant"/>
+            android:textSize="@dimen/secondary_text_size"
+            android:textFontWeight="500"
+            android:fontFamily="@font/ys_display_medium"
+            android:textColor="?attr/colorOnSecondary"
+            android:backgroundTint="?attr/colorSecondary"
+            android:textAllCaps="false"
+            app:trackTint="@color/search_text"
+            app:thumbTint="?attr/colorSecondaryVariant" />
 
     </LinearLayout>
 

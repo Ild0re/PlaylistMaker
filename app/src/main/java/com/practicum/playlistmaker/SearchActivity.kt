@@ -1,6 +1,7 @@
 package com.practicum.playlistmaker
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -14,8 +15,9 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -24,6 +26,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
 import java.util.ArrayList
 import java.util.Locale
+
+const val HISTORY_PREFERENCES = "history_preferences"
+const val HISTORY_KEY = "history_key"
 
 class SearchActivity : AppCompatActivity() {
 
@@ -39,13 +44,15 @@ class SearchActivity : AppCompatActivity() {
 
     private val trackService = retrofit.create(SongAPI::class.java)
     private val trackList = ArrayList<Track>()
-    private val songlistAdapter = TrackAdapter(trackList)
-
-
+    private var historyList = ArrayList<Track>()
+    private val songlistAdapter = TrackAdapter(trackList, ::onTrackClickListener)
+    private val historySonglistAdapter = TrackAdapter(historyList, ::onTrackClickListener)
 
     private lateinit var placeholderMessage: TextView
     private lateinit var placeholderImage: ImageView
     private lateinit var rvTrack: RecyclerView
+    private lateinit var historyText: TextView
+    private lateinit var rvHistory: RecyclerView
 
     private fun isDarkThemeEnabled(): Boolean {
         if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
@@ -89,18 +96,52 @@ class SearchActivity : AppCompatActivity() {
         val searchEditText = findViewById<EditText>(R.id.inputEditText)
         val clearButton = findViewById<ImageButton>(R.id.clearButton)
         val refreshButton = findViewById<Button>(R.id.button_refresh)
+        val cleanHistoryButton = findViewById<Button>(R.id.clean_history)
         placeholderMessage = findViewById(R.id.placeholderText)
         placeholderImage = findViewById(R.id.placeholderImage)
         rvTrack = findViewById(R.id.recyclerView)
+        historyText = findViewById(R.id.history_text)
+        rvHistory = findViewById(R.id.recyclerViewHistory)
 
 
+        rvHistory.adapter = historySonglistAdapter
         rvTrack.adapter = songlistAdapter
 
+        if (historyList.isNullOrEmpty()) {
+            historySonglistAdapter.notifyDataSetChanged()
+            historyText.visibility = View.GONE
+            rvHistory.visibility = View.GONE
+            cleanHistoryButton.visibility = View.GONE
+        } else {
+            historySonglistAdapter.notifyDataSetChanged()
+            historyText.visibility = View.VISIBLE
+            rvHistory.visibility = View.VISIBLE
+            cleanHistoryButton.visibility = View.VISIBLE
+        }
+
+
         searchEditText.background.clearColorFilter()
+
+        val sharedPreferences = getSharedPreferences(HISTORY_PREFERENCES, MODE_PRIVATE)
+
+        searchEditText.setOnFocusChangeListener { view, hasFocus ->
+            historyText.visibility = if (hasFocus && searchEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+            rvHistory.visibility = if (hasFocus && searchEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+            cleanHistoryButton.visibility = if (hasFocus && searchEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+        }
 
         buttonBack.setOnClickListener {
             finish()
         }
+
+        cleanHistoryButton.setOnClickListener {
+            historyList.clear()
+            historySonglistAdapter.notifyDataSetChanged()
+            historyText.visibility = View.GONE
+            rvHistory.visibility = View.GONE
+            cleanHistoryButton.visibility = View.GONE
+        }
+
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 if (s.isNullOrEmpty()) {
@@ -115,6 +156,9 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                historyText.visibility = if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+                rvHistory.visibility = if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+                cleanHistoryButton.visibility = if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
             }
         })
 
@@ -129,7 +173,7 @@ class SearchActivity : AppCompatActivity() {
             clearButton.visibility = View.GONE
             trackList.clear()
             songlistAdapter.notifyDataSetChanged()
-            rvTrack.visibility = View.VISIBLE
+            rvTrack.visibility = View.GONE
             placeholderMessage.visibility = View.GONE
             placeholderImage.visibility = View.GONE
         }
@@ -194,7 +238,51 @@ class SearchActivity : AppCompatActivity() {
         }
 
 
+        val spTracks = sharedPreferences.getString(HISTORY_KEY, null)
+        if (spTracks != null) {
+            historyList.clear()
+            historyList.addAll(createTracksListFromJson(spTracks))
+            historySonglistAdapter.notifyDataSetChanged()
+        }
 
+        sharedPreferences.edit()
+            .putString(HISTORY_KEY, createJsonFromTrackList(historyList))
+            .apply()
 
     }
+
+    override fun onStop() {
+        super.onStop()
+
+        val sharedPreferences = getSharedPreferences(HISTORY_PREFERENCES, MODE_PRIVATE)
+        sharedPreferences.edit()
+            .putString(HISTORY_KEY, createJsonFromTrackList(historyList))
+            .apply()
+
+    }
+
+    private fun createJsonFromTrackList(tracks: ArrayList<Track>) : String {
+        return Gson().toJson(tracks)
+    }
+
+    private fun createTracksListFromJson(json: String): ArrayList<Track>{
+        val type = object : TypeToken<ArrayList<Track>>() {}.type
+        return Gson().fromJson(json, type)
+    }
+
+    private fun onTrackClickListener(track: Track) {
+        if (track !in historyList) {
+            historyList.add(0, track)
+            historySonglistAdapter.notifyDataSetChanged()
+            if (historyList.size > 10) {
+                historyList.removeLast()
+                historySonglistAdapter.notifyDataSetChanged()
+            }
+        } else {
+            historyList.remove(track)
+            historyList.add(0, track)
+            historySonglistAdapter.notifyDataSetChanged()
+        }
+    }
+
 }
