@@ -6,4 +6,5 @@
     <dimen name="row_padding">42dp</dimen>
     <dimen name="button_size">24dp</dimen>
     <dimen name="icon_padding">8dp</dimen>
+    <dimen name="margin_12">12dp</dimen>
 </resources>

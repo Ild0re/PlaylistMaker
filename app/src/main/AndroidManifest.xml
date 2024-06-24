@@ -23,6 +23,8 @@
             android:exported="false" />
         <activity android:name=".SettingsActivity"
             android:exported="true" />
+        <activity android:name=".TrackActivity"
+            android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">
