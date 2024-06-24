@@ -34,23 +34,24 @@ class TrackActivity : AppCompatActivity() {
         val year: TextView = findViewById(R.id.year)
         val genre: TextView = findViewById(R.id.genre)
         val country: TextView = findViewById(R.id.country)
+        val timeCount: TextView = findViewById(R.id.songTime)
         val buttonBack = findViewById<ImageButton>(R.id.buttonBackToMenu)
         val playButton = findViewById<ImageButton>(R.id.playButton)
 
-        var time = LocalDateTime.parse(track.releaseDate)
 
         songName.text = track.trackName
         singer.text = track.artistName
         songTime.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(track.trackTimeMillis)
-        year.text = time.year.toString()
+        year.text = track.releaseDate.substring(0, 4)
         genre.text = track.primaryGenreName
         country.text = track.country
+        timeCount.text = "00:00"
         Glide.with(applicationContext)
             .load(track.artworkUrl100.replaceAfterLast('/',"512x512bb.jpg"))
             .placeholder(R.drawable.placeholder_image)
             .centerCrop()
             .transform(
-                RoundedCorners(4)
+                RoundedCorners(8)
             )
             .into(albumImage)
         if (track.collectionName.isNullOrEmpty()) {

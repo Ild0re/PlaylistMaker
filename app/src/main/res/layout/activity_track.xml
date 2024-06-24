@@ -133,9 +133,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_12"
+        android:text="@string/songTime"
         app:layout_constraintStart_toEndOf="@id/left_guideline"
-        app:layout_constraintTop_toBottomOf="@id/songTime"
-        tools:text="Track Time"/>
+        app:layout_constraintTop_toBottomOf="@id/songTime"/>
 
     <TextView
         android:id="@+id/time"
@@ -153,10 +153,10 @@
         android:layout_marginTop="@dimen/icon_padding"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/albumName"
         android:layout_marginStart="@dimen/margin_12"
         app:layout_constraintStart_toEndOf="@id/left_guideline"
-        app:layout_constraintTop_toBottomOf="@id/trackTime"
-        tools:text="Album Name"/>
+        app:layout_constraintTop_toBottomOf="@id/trackTime" />
 
     <TextView
         android:id="@+id/album"
@@ -183,9 +183,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_12"
+        android:text="@string/songYear"
         app:layout_constraintStart_toEndOf="@id/left_guideline"
-        app:layout_constraintTop_toBottomOf="@id/albumName"
-        tools:text="Year"/>
+        app:layout_constraintTop_toBottomOf="@id/albumName" />
 
     <TextView
         android:id="@+id/year"
@@ -204,9 +204,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_12"
+        android:text="@string/songGenre"
         app:layout_constraintStart_toEndOf="@id/left_guideline"
-        app:layout_constraintTop_toBottomOf="@id/songYear"
-        tools:text="Genre"/>
+        app:layout_constraintTop_toBottomOf="@id/songYear" />
 
     <TextView
         android:id="@+id/genre"
@@ -226,10 +226,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_12"
         android:layout_marginBottom="28dp"
+        android:text="@string/songCountry"
         app:layout_constraintStart_toEndOf="@id/left_guideline"
         app:layout_constraintTop_toBottomOf="@id/songGenre"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:text="Country"/>
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <TextView
         android:id="@+id/country"
