@@ -1,7 +1,9 @@
 package com.practicum.playlistmaker
 
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -47,11 +49,11 @@ class TrackActivity : AppCompatActivity() {
         country.text = track.country
         timeCount.text = "00:00"
         Glide.with(applicationContext)
-            .load(track.artworkUrl100.replaceAfterLast('/',"512x512bb.jpg"))
+            .load(track.artworkUrl100.replaceAfterLast('/', "512x512bb.jpg"))
             .placeholder(R.drawable.placeholder_image)
             .centerCrop()
             .transform(
-                RoundedCorners(8)
+                RoundedCorners(dpToPx(8f, this))
             )
             .into(albumImage)
         if (track.collectionName.isNullOrEmpty()) {
@@ -82,5 +84,12 @@ class TrackActivity : AppCompatActivity() {
         } else {
             return false
         }
+    }
+
+    fun dpToPx(dp: Float, context: Context): Int {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            dp,
+            context.resources.displayMetrics).toInt()
     }
 }
