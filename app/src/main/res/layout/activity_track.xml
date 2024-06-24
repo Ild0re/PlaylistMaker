@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSecondary"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -35,14 +36,14 @@
         android:id="@+id/cover"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="82dp"
+        android:layout_marginTop="26dp"
         android:layout_marginStart="@dimen/icon_padding"
         android:layout_marginEnd="@dimen/icon_padding"
         android:src="@drawable/test_image"
         app:layout_constraintBottom_toTopOf="@id/song_name"
-        app:layout_constraintEnd_toStartOf="@id/right_guideline"
-        app:layout_constraintStart_toEndOf="@id/left_guideline"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/song_name"
+        app:layout_constraintStart_toStartOf="@id/song_name"
+        app:layout_constraintTop_toBottomOf="@id/buttonBackToMenu"
         app:layout_constraintDimensionRatio="H,1:1"/>
 
     <TextView

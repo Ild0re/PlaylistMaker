@@ -22,10 +22,7 @@ class TrackActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_track)
 
-        val intent = getIntent()
-
-        val data: String? = intent.getStringExtra("data")
-        var track = createTracksListFromJson(data.toString())
+        var track = createTracksListFromJson(receiveIntent().toString())
 
         val albumImage: ImageView = findViewById(R.id.cover)
         val songName: TextView = findViewById(R.id.song_name)
@@ -86,10 +83,17 @@ class TrackActivity : AppCompatActivity() {
         }
     }
 
-    fun dpToPx(dp: Float, context: Context): Int {
+    private fun dpToPx(dp: Float, context: Context): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             dp,
             context.resources.displayMetrics).toInt()
     }
+
+    private fun receiveIntent(): String? {
+        val intent = getIntent()
+        val data: String? = intent.getStringExtra("data")
+        return data
+    }
+
 }
