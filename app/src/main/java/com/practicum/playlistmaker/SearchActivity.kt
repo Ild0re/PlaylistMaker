@@ -1,6 +1,7 @@
 package com.practicum.playlistmaker
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
@@ -283,6 +284,9 @@ class SearchActivity : AppCompatActivity() {
             historyList.add(0, track)
             historySonglistAdapter.notifyDataSetChanged()
         }
+        val intent = Intent(this, TrackActivity::class.java)
+        intent.putExtra("data", Gson().toJson(track))
+        startActivity(intent)
     }
 
 }

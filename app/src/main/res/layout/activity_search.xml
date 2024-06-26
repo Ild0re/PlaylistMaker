@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="?attr/colorSecondary"
     android:padding="@dimen/screen_padding"
     android:theme="@style/Theme.PlaylistMaker">
 
@@ -124,7 +125,7 @@
             android:id="@+id/recyclerViewHistory"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:visibility="visible"
+            android:visibility="gone"
             android:layout_weight="1"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
@@ -133,7 +134,7 @@
             style="@style/TrackButtonStyle"
             android:padding="10dp"
             android:text="@string/cleanHistory"
-            android:visibility="visible"/>
+            android:visibility="gone"/>
 
     </LinearLayout>
 
