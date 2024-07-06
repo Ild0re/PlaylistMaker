@@ -2,10 +2,10 @@ package com.practicum.playlistmaker
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.res.Configuration
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -15,7 +15,9 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -24,15 +26,20 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.text.SimpleDateFormat
-import java.util.ArrayList
-import java.util.Locale
 
 const val HISTORY_PREFERENCES = "history_preferences"
 const val HISTORY_KEY = "history_key"
 
 class SearchActivity : AppCompatActivity() {
 
+    companion object {
+        private const val CLICK_DEBOUNCE_DELAY = 1000L
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
+    }
+
+    private var isClickAllowed = true
+
+    private val handler = Handler(Looper.getMainLooper())
     private var text = ""
 
     private val trackBaseUrl = "https://itunes.apple.com"
@@ -54,6 +61,11 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var rvTrack: RecyclerView
     private lateinit var historyText: TextView
     private lateinit var rvHistory: RecyclerView
+    private lateinit var searchEditText: EditText
+    private lateinit var refreshButton: Button
+    private lateinit var progressBar: ProgressBar
+
+    private val searchRunnable = Runnable { if (!searchEditText.text.isNullOrEmpty()) sendRequest() }
 
     private fun isDarkThemeEnabled(): Boolean {
         if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
@@ -94,10 +106,11 @@ class SearchActivity : AppCompatActivity() {
         setContentView(R.layout.activity_search)
 
         val buttonBack = findViewById<ImageButton>(R.id.buttonBackToMenu)
-        val searchEditText = findViewById<EditText>(R.id.inputEditText)
+        searchEditText = findViewById(R.id.inputEditText)
         val clearButton = findViewById<ImageButton>(R.id.clearButton)
-        val refreshButton = findViewById<Button>(R.id.button_refresh)
+        refreshButton = findViewById(R.id.button_refresh)
         val cleanHistoryButton = findViewById<Button>(R.id.clean_history)
+        progressBar = findViewById(R.id.progressBar)
         placeholderMessage = findViewById(R.id.placeholderText)
         placeholderImage = findViewById(R.id.placeholderImage)
         rvTrack = findViewById(R.id.recyclerView)
@@ -147,6 +160,9 @@ class SearchActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {
                 if (s.isNullOrEmpty()) {
                     clearButton.visibility = View.GONE
+                    rvTrack.visibility = View.GONE
+                    placeholderMessage.visibility = View.GONE
+                    placeholderImage.visibility = View.GONE
                 } else {
                     clearButton.visibility = View.VISIBLE
                     text = s.toString()
@@ -160,6 +176,7 @@ class SearchActivity : AppCompatActivity() {
                 historyText.visibility = if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
                 rvHistory.visibility = if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
                 cleanHistoryButton.visibility = if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+                searchDebounce()
             }
         })
 
@@ -174,57 +191,12 @@ class SearchActivity : AppCompatActivity() {
             clearButton.visibility = View.GONE
             trackList.clear()
             songlistAdapter.notifyDataSetChanged()
+            handler.removeCallbacks(searchRunnable)
             rvTrack.visibility = View.GONE
             placeholderMessage.visibility = View.GONE
             placeholderImage.visibility = View.GONE
         }
 
-        fun sendRequest() {
-                trackService.search(searchEditText.text.toString())?.enqueue(object: Callback<Song?> {
-                    override fun onResponse(p0: Call<Song?>, response: Response<Song?>) {
-                        when (response.code()) {
-                            200 -> {
-                                rvTrack.visibility = View.VISIBLE
-                                placeholderMessage.visibility = View.GONE
-                                placeholderImage.visibility = View.GONE
-                                if (response.body()?.results?.isNotEmpty() == true) {
-                                    trackList.clear()
-                                    trackList.addAll(response.body()?.results!!)
-                                    songlistAdapter.notifyDataSetChanged()
-                                } else {
-                                    showMessage(getString(R.string.nothing_to_show))
-                                    if (isDarkThemeEnabled()) {
-                                        placeholderImage.setImageResource(R.drawable.dark_mode)
-                                    } else {
-                                        placeholderImage.setImageResource(R.drawable.light_mode_1)
-                                    }
-                                }
-
-                            }
-                            else ->  {
-                                refreshButton.visibility = View.VISIBLE
-                                showMessage(getString(R.string.internet_issue))
-                                if (isDarkThemeEnabled()) {
-                                    placeholderImage.setImageResource(R.drawable.dark_mode_1)
-                                } else {
-                                    placeholderImage.setImageResource(R.drawable.light_mode)
-                                }
-                            }
-                        }
-                    }
-
-                    override fun onFailure(p0: Call<Song?>, p1: Throwable) {
-                        refreshButton.visibility = View.VISIBLE
-                        showMessage(getString(R.string.internet_issue))
-                        if (isDarkThemeEnabled()) {
-                            placeholderImage.setImageResource(R.drawable.dark_mode_1)
-                        } else {
-                            placeholderImage.setImageResource(R.drawable.light_mode)
-                        }
-                    }
-
-                })
-        }
 
         refreshButton.setOnClickListener {
             refreshButton.visibility = View.GONE
@@ -262,6 +234,62 @@ class SearchActivity : AppCompatActivity() {
 
     }
 
+    private fun sendRequest() {
+        if (searchEditText.text.isNotEmpty()) {
+            rvTrack.visibility = View.GONE
+            placeholderMessage.visibility = View.GONE
+            placeholderImage.visibility = View.GONE
+            progressBar.visibility = View.VISIBLE
+            trackService.search(searchEditText.text.toString())?.enqueue(object: Callback<Song?> {
+                override fun onResponse(p0: Call<Song?>, response: Response<Song?>) {
+                    progressBar.visibility = View.GONE
+                    when (response.code()) {
+                        200 -> {
+                            rvTrack.visibility = View.VISIBLE
+                            placeholderMessage.visibility = View.GONE
+                            placeholderImage.visibility = View.GONE
+                            if (response.body()?.results?.isNotEmpty() == true) {
+                                trackList.clear()
+                                trackList.addAll(response.body()?.results!!)
+                                songlistAdapter.notifyDataSetChanged()
+                            } else {
+                                showMessage(getString(R.string.nothing_to_show))
+                                if (isDarkThemeEnabled()) {
+                                    placeholderImage.setImageResource(R.drawable.dark_mode)
+                                } else {
+                                    placeholderImage.setImageResource(R.drawable.light_mode_1)
+                                }
+                            }
+
+                        }
+                        else ->  {
+                            refreshButton.visibility = View.VISIBLE
+                            showMessage(getString(R.string.internet_issue))
+                            if (isDarkThemeEnabled()) {
+                                placeholderImage.setImageResource(R.drawable.dark_mode_1)
+                            } else {
+                                placeholderImage.setImageResource(R.drawable.light_mode)
+                            }
+                        }
+                    }
+                }
+
+                override fun onFailure(p0: Call<Song?>, p1: Throwable) {
+                    progressBar.visibility = View.GONE
+                    refreshButton.visibility = View.VISIBLE
+                    showMessage(getString(R.string.internet_issue))
+                    if (isDarkThemeEnabled()) {
+                        placeholderImage.setImageResource(R.drawable.dark_mode_1)
+                    } else {
+                        placeholderImage.setImageResource(R.drawable.light_mode)
+                    }
+                }
+
+            })
+        }
+
+    }
+
     private fun createJsonFromTrackList(tracks: ArrayList<Track>) : String {
         return Gson().toJson(tracks)
     }
@@ -284,9 +312,24 @@ class SearchActivity : AppCompatActivity() {
             historyList.add(0, track)
             historySonglistAdapter.notifyDataSetChanged()
         }
-        val intent = Intent(this, TrackActivity::class.java)
-        intent.putExtra("data", Gson().toJson(track))
-        startActivity(intent)
+        if (clickDebounce()) {
+            val intent = Intent(this, TrackActivity::class.java)
+            intent.putExtra("data", Gson().toJson(track))
+            startActivity(intent)
+        }
     }
 
+    private fun clickDebounce() : Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
+        }
+        return current
+    }
+
+    private fun searchDebounce() {
+        handler.removeCallbacks(searchRunnable)
+        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
+    }
 }
