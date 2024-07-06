@@ -27,6 +27,8 @@ class TrackActivity : AppCompatActivity() {
         private const val STATE_PLAYING = 2
         private const val STATE_PAUSED = 3
         private const val DELAY = 500L
+        private const val ZERO_SECONDS = 0L
+        private const val CORNERS_FOR_IMAGE = 8f
     }
 
     private var playerState = STATE_DEFAULT
@@ -65,16 +67,16 @@ class TrackActivity : AppCompatActivity() {
         year.text = track.releaseDate.substring(0, 4)
         genre.text = track.primaryGenreName
         country.text = track.country
-        timeCount.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(0L)
+        timeCount.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(ZERO_SECONDS)
         Glide.with(applicationContext)
             .load(track.artworkUrl100.replaceAfterLast('/', "512x512bb.jpg"))
             .placeholder(R.drawable.placeholder_image)
             .centerCrop()
             .transform(
-                RoundedCorners(dpToPx(8f, this))
+                RoundedCorners(dpToPx(CORNERS_FOR_IMAGE, this))
             )
             .into(albumImage)
-        if (track.collectionName.isNullOrEmpty()) {
+        if (track.collectionName.isEmpty()) {
             group.visibility = View.GONE
         } else {
             album.text = track.collectionName
@@ -150,7 +152,7 @@ class TrackActivity : AppCompatActivity() {
             choosePlayImageForPlayButton()
             playerState = STATE_PREPARED
             mainThreadHandler?.removeCallbacks(createUpdateTimerTask())
-            timeCount.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(0L)
+            timeCount.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(ZERO_SECONDS)
         }
     }
 
