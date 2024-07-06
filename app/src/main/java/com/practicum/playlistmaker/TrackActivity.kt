@@ -31,6 +31,14 @@ class TrackActivity : AppCompatActivity() {
         private const val CORNERS_FOR_IMAGE = 8f
     }
 
+    private val myRunnable = object : Runnable {
+        override fun run() {
+            timeCount.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)
+            mainThreadHandler?.postDelayed(this, DELAY)
+
+        }
+    }
+
     private var playerState = STATE_DEFAULT
     private var mainThreadHandler: Handler? = null
 
@@ -86,7 +94,7 @@ class TrackActivity : AppCompatActivity() {
 
         playButton.setOnClickListener {
             playbackControl()
-            mainThreadHandler?.post(createUpdateTimerTask())
+            mainThreadHandler?.post(myRunnable)
         }
 
         buttonBack.setOnClickListener {
@@ -101,7 +109,7 @@ class TrackActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mainThreadHandler?.removeCallbacks(createUpdateTimerTask())
+        mainThreadHandler?.removeCallbacks(myRunnable)
         mediaPlayer.release()
     }
 
@@ -151,7 +159,7 @@ class TrackActivity : AppCompatActivity() {
         mediaPlayer.setOnCompletionListener {
             choosePlayImageForPlayButton()
             playerState = STATE_PREPARED
-            mainThreadHandler?.removeCallbacks(createUpdateTimerTask())
+            mainThreadHandler?.removeCallbacks(myRunnable)
             timeCount.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(ZERO_SECONDS)
         }
     }
@@ -165,7 +173,7 @@ class TrackActivity : AppCompatActivity() {
     private fun pausePlayer() {
         mediaPlayer.pause()
         choosePlayImageForPlayButton()
-        mainThreadHandler?.removeCallbacks(createUpdateTimerTask())
+        mainThreadHandler?.removeCallbacks(myRunnable)
         playerState = STATE_PAUSED
     }
 
@@ -186,17 +194,6 @@ class TrackActivity : AppCompatActivity() {
         } else {
             playButton.setImageResource(R.drawable.pause_day)
             playButton.setBackgroundResource(R.drawable.white_round_button)
-        }
-    }
-
-    private fun createUpdateTimerTask(): Runnable {
-        return object : Runnable {
-            override fun run() {
-                if (playerState == STATE_PLAYING) {
-                    timeCount.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)
-                    mainThreadHandler?.postDelayed(this, DELAY)
-                }
-            }
         }
     }
 }

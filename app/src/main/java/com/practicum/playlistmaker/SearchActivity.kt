@@ -234,6 +234,11 @@ class SearchActivity : AppCompatActivity() {
 
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacksAndMessages(null)
+    }
+
     private fun sendRequest() {
         if (searchEditText.text.isNotEmpty()) {
             rvTrack.visibility = View.GONE

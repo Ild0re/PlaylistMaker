@@ -5,7 +5,7 @@
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/black</item>
         <item name="colorPrimaryVariant">@color/black</item>
-        <item name="colorOnPrimary">@color/gray</item>
+        <item name="colorOnPrimary">@color/round_button_night</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/black</item>
         <item name="colorSecondaryVariant">@color/white</item>
@@ -13,6 +13,9 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="android:trackTint">@color/switch_background_night</item>
+        <item name="android:thumbTint">@color/blue</item>
     </style>
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+
 </resources>
