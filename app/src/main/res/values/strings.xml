@@ -24,4 +24,5 @@
     <string name="songYear">Год</string>
     <string name="songGenre">Жанр</string>
     <string name="songCountry">Страна</string>
+    <string name="baseTime">00:00</string>
 </resources>
