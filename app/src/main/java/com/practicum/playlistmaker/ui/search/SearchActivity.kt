@@ -21,9 +21,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.practicum.playlistmaker.Creator
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.data.dto.Song
-import com.practicum.playlistmaker.data.network.SongAPI
+import com.practicum.playlistmaker.data.network.TrackAPI
+import com.practicum.playlistmaker.domain.consumer.Consumer
+import com.practicum.playlistmaker.domain.models.Song
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.ui.track.TrackActivity
 import retrofit2.Call
@@ -47,7 +49,7 @@ class SearchActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private var text = ""
 
-    private val trackBaseUrl = "https://itunes.apple.com"
+    /*private val trackBaseUrl = "https://itunes.apple.com"
     private val retrofit = Retrofit.Builder()
         .baseUrl(trackBaseUrl)
         .addConverterFactory(
@@ -55,11 +57,13 @@ class SearchActivity : AppCompatActivity() {
             .create())
         .build()
 
-    private val trackService = retrofit.create(SongAPI::class.java)
+    private val trackService = retrofit.create(TrackAPI::class.java)*/
     private val trackList = ArrayList<Track>()
     private var historyList = ArrayList<Track>()
-    private val songlistAdapter = TrackAdapter(trackList, ::onTrackClickListener)
-    private val historySonglistAdapter = TrackAdapter(historyList, ::onTrackClickListener)
+    private val songlistAdapter = SearchAdapter(trackList, ::onTrackClickListener)
+    private val historySonglistAdapter = SearchAdapter(historyList, ::onTrackClickListener)
+
+    private val getTracksSearchUseCase = Creator.provideTracksSearchUseCase()
 
     private lateinit var placeholderMessage: TextView
     private lateinit var placeholderImage: ImageView
@@ -250,15 +254,19 @@ class SearchActivity : AppCompatActivity() {
             placeholderMessage.visibility = View.GONE
             placeholderImage.visibility = View.GONE
             progressBar.visibility = View.VISIBLE
-            trackService.search(searchEditText.text.toString())?.enqueue(object: Callback<Song?> {
-                override fun onResponse(p0: Call<Song?>, response: Response<Song?>) {
+
+            getTracksSearchUseCase.search(
+                searchEditText.text.toString(),
+                object : Consumer<Song>
+            ) {
+                override fun consume(data: Consumer<Song>) {
                     progressBar.visibility = View.GONE
-                    when (response.code()) {
-                        200 -> {
+                    when (data)
+                        true -> {
                             rvTrack.visibility = View.VISIBLE
                             placeholderMessage.visibility = View.GONE
                             placeholderImage.visibility = View.GONE
-                            if (response.body()?.results?.isNotEmpty() == true) {
+                            if (data.results?.isNotEmpty() == true) {
                                 trackList.clear()
                                 trackList.addAll(response.body()?.results!!)
                                 songlistAdapter.notifyDataSetChanged()
@@ -270,9 +278,7 @@ class SearchActivity : AppCompatActivity() {
                                     placeholderImage.setImageResource(R.drawable.light_mode_1)
                                 }
                             }
-
-                        }
-                        else ->  {
+                        } else {
                             refreshButton.visibility = View.VISIBLE
                             showMessage(getString(R.string.internet_issue))
                             if (isDarkThemeEnabled()) {
