@@ -248,89 +248,51 @@ class SearchActivity : AppCompatActivity() {
         handler.removeCallbacksAndMessages(null)
     }
 
-
-///*
-//    val consumerObject = object: Consumer<Song> {
-//        override fun consume(search: List<Song>) {
-//            progressBar.visibility = View.GONE
-//            if (search.isNotEmpty()) {
-//                rvTrack.visibility = View.VISIBLE
-//                placeholderMessage.visibility = View.GONE
-//                placeholderImage.visibility = View.GONE
-//                if (search.isNotEmpty() == true) {
-//                    trackList.clear()
-//                    trackList.addAll(search)
-//                    songlistAdapter.notifyDataSetChanged()
-//                } else {
-//                    showMessage(getString(R.string.nothing_to_show))
-//                    if (isDarkThemeEnabled()) {
-//                        placeholderImage.setImageResource(R.drawable.dark_mode)
-//                    } else {
-//                        placeholderImage.setImageResource(R.drawable.light_mode_1)
-//                    }
-//                }
-//            } else {
-//                refreshButton.visibility = View.VISIBLE
-//                showMessage(getString(R.string.internet_issue))
-//                if (isDarkThemeEnabled()) {
-//                    placeholderImage.setImageResource(R.drawable.dark_mode_1)
-//                } else {
-//                    placeholderImage.setImageResource(R.drawable.light_mode)
-//                }
-//            }
-//        }
-//    }
-//        }
-//    }
-//*/
-
     private fun sendRequest() {
         if (searchEditText.text.isNotEmpty()) {
             rvTrack.visibility = View.GONE
             placeholderMessage.visibility = View.GONE
             placeholderImage.visibility = View.GONE
             progressBar.visibility = View.VISIBLE
-
-                getTracksSearchUseCase.search(
-                    searchEditText.text.toString(),
-                    object : Consumer<List<Track>> {
-                        override fun consume(data: List<Track>) {
-                            val currentRunnable = searchRunnable
-                            if (currentRunnable != null) {
-                                handler.removeCallbacks(currentRunnable)
-                            }
-
-                            val newTracksRunnable = Runnable {
-                                progressBar.visibility = View.GONE
-                                if (data.isNotEmpty() && data != null) {
-                                    rvTrack.visibility = View.VISIBLE
-                                    placeholderMessage.visibility = View.GONE
-                                    placeholderImage.visibility = View.GONE
-                                    trackList.clear()
-                                    trackList.addAll(data)
-                                    songlistAdapter.notifyDataSetChanged()
-                                } else if (data.isEmpty()) {
-                                    showMessage(getString(R.string.nothing_to_show))
-                                    if (isDarkThemeEnabled()) {
-                                        placeholderImage.setImageResource(R.drawable.dark_mode)
-                                    } else {
-                                        placeholderImage.setImageResource(R.drawable.light_mode_1)
-                                    }
+            getTracksSearchUseCase.search(
+                searchEditText.text.toString(),
+                object : Consumer<List<Track>> {
+                    override fun consume(data: List<Track>) {
+                        val currentRunnable = searchRunnable
+                        if (currentRunnable != null) {
+                            handler.removeCallbacks(currentRunnable)
+                        }
+                        val newTracksRunnable = Runnable {
+                            progressBar.visibility = View.GONE
+                            if (data.isNotEmpty() && data != null) {
+                                rvTrack.visibility = View.VISIBLE
+                                placeholderMessage.visibility = View.GONE
+                                placeholderImage.visibility = View.GONE
+                                trackList.clear()
+                                trackList.addAll(data)
+                                songlistAdapter.notifyDataSetChanged()
+                            } else if (data.isEmpty()) {
+                                showMessage(getString(R.string.nothing_to_show))
+                                if (isDarkThemeEnabled()) {
+                                    placeholderImage.setImageResource(R.drawable.dark_mode)
                                 } else {
-                                    refreshButton.visibility = View.VISIBLE
-                                    showMessage(getString(R.string.internet_issue))
-                                    if (isDarkThemeEnabled()) {
-                                        placeholderImage.setImageResource(R.drawable.dark_mode_1)
-                                    } else {
-                                        placeholderImage.setImageResource(R.drawable.light_mode)
-                                    }
+                                    placeholderImage.setImageResource(R.drawable.light_mode_1)
+                                }
+                            } else {
+                                refreshButton.visibility = View.VISIBLE
+                                showMessage(getString(R.string.internet_issue))
+                                if (isDarkThemeEnabled()) {
+                                    placeholderImage.setImageResource(R.drawable.dark_mode_1)
+                                } else {
+                                    placeholderImage.setImageResource(R.drawable.light_mode)
                                 }
                             }
+                        }
 
-                            searchRunnable = newTracksRunnable
-                            handler.post(newTracksRunnable)}
+                        searchRunnable = newTracksRunnable
+                        handler.post(newTracksRunnable)}
 
-                    })
+                })
             }
         }
 
