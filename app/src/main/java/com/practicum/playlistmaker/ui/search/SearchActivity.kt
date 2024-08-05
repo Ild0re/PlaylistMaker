@@ -248,6 +248,42 @@ class SearchActivity : AppCompatActivity() {
         handler.removeCallbacksAndMessages(null)
     }
 
+
+///*
+//    val consumerObject = object: Consumer<Song> {
+//        override fun consume(search: List<Song>) {
+//            progressBar.visibility = View.GONE
+//            if (search.isNotEmpty()) {
+//                rvTrack.visibility = View.VISIBLE
+//                placeholderMessage.visibility = View.GONE
+//                placeholderImage.visibility = View.GONE
+//                if (search.isNotEmpty() == true) {
+//                    trackList.clear()
+//                    trackList.addAll(search)
+//                    songlistAdapter.notifyDataSetChanged()
+//                } else {
+//                    showMessage(getString(R.string.nothing_to_show))
+//                    if (isDarkThemeEnabled()) {
+//                        placeholderImage.setImageResource(R.drawable.dark_mode)
+//                    } else {
+//                        placeholderImage.setImageResource(R.drawable.light_mode_1)
+//                    }
+//                }
+//            } else {
+//                refreshButton.visibility = View.VISIBLE
+//                showMessage(getString(R.string.internet_issue))
+//                if (isDarkThemeEnabled()) {
+//                    placeholderImage.setImageResource(R.drawable.dark_mode_1)
+//                } else {
+//                    placeholderImage.setImageResource(R.drawable.light_mode)
+//                }
+//            }
+//        }
+//    }
+//        }
+//    }
+//*/
+
     private fun sendRequest() {
         if (searchEditText.text.isNotEmpty()) {
             rvTrack.visibility = View.GONE
@@ -255,27 +291,28 @@ class SearchActivity : AppCompatActivity() {
             placeholderImage.visibility = View.GONE
             progressBar.visibility = View.VISIBLE
 
+
             getTracksSearchUseCase.search(
                 searchEditText.text.toString(),
-                object : Consumer<Song>
-            ) {
-                override fun consume(data: Consumer<Song>) {
-                    progressBar.visibility = View.GONE
-                    when (data)
-                        true -> {
+                object : Consumer<List<Song>> {
+                    override fun consume(data: List<Song>) {
+                        progressBar.visibility = View.GONE
+                        if (data.isNotEmpty()) {
                             rvTrack.visibility = View.VISIBLE
                             placeholderMessage.visibility = View.GONE
                             placeholderImage.visibility = View.GONE
-                            if (data.results?.isNotEmpty() == true) {
-                                trackList.clear()
-                                trackList.addAll(response.body()?.results!!)
-                                songlistAdapter.notifyDataSetChanged()
-                            } else {
-                                showMessage(getString(R.string.nothing_to_show))
-                                if (isDarkThemeEnabled()) {
-                                    placeholderImage.setImageResource(R.drawable.dark_mode)
+                            for (i in data) {
+                                if (i.results.isNotEmpty() == true) {
+                                    trackList.clear()
+                                    trackList.addAll(i.results!!)
+                                    songlistAdapter.notifyDataSetChanged()
                                 } else {
-                                    placeholderImage.setImageResource(R.drawable.light_mode_1)
+                                    showMessage(getString(R.string.nothing_to_show))
+                                    if (isDarkThemeEnabled()) {
+                                        placeholderImage.setImageResource(R.drawable.dark_mode)
+                                    } else {
+                                        placeholderImage.setImageResource(R.drawable.light_mode_1)
+                                    }
                                 }
                             }
                         } else {
@@ -288,23 +325,24 @@ class SearchActivity : AppCompatActivity() {
                             }
                         }
                     }
-                }
-
-                override fun onFailure(p0: Call<Song?>, p1: Throwable) {
-                    progressBar.visibility = View.GONE
-                    refreshButton.visibility = View.VISIBLE
-                    showMessage(getString(R.string.internet_issue))
-                    if (isDarkThemeEnabled()) {
-                        placeholderImage.setImageResource(R.drawable.dark_mode_1)
-                    } else {
-                        placeholderImage.setImageResource(R.drawable.light_mode)
-                    }
-                }
-
-            })
+                })
         }
-
     }
+
+//                override fun onFailure(p0: Call<Song?>, p1: Throwable) {
+//                    progressBar.visibility = View.GONE
+//                    refreshButton.visibility = View.VISIBLE
+//                    showMessage(getString(R.string.internet_issue))
+//                    if (isDarkThemeEnabled()) {
+//                        placeholderImage.setImageResource(R.drawable.dark_mode_1)
+//                    } else {
+//                        placeholderImage.setImageResource(R.drawable.light_mode)
+//                    }
+//                }
+//
+//            })
+//        }
+
 
     private fun createJsonFromTrackList(tracks: ArrayList<Track>) : String {
         return Gson().toJson(tracks)

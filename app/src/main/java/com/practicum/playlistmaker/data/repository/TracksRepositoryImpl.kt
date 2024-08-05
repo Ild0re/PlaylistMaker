@@ -1,5 +1,6 @@
 package com.practicum.playlistmaker.data.repository
 
+import com.practicum.playlistmaker.data.dto.SongDto
 import com.practicum.playlistmaker.data.dto.TracksSearchRequest
 import com.practicum.playlistmaker.data.dto.TracksSearchResponse
 import com.practicum.playlistmaker.domain.models.Song
@@ -11,7 +12,7 @@ class TracksRepositoryImpl(private val networkClient: NetworkClient) : TracksRep
     override fun search(expression: String): List<Song> {
         val response = networkClient.doRequest(TracksSearchRequest(expression).toString())
         if (response.resultCode == 200) {
-            return (response as TracksSearchResponse).results.map {
+            return (response as TracksSearchResponse).value.map {
                 Song(
                     it.resultCount,
                     it.results.map {
@@ -20,12 +21,12 @@ class TracksRepositoryImpl(private val networkClient: NetworkClient) : TracksRep
                             it.trackName,
                             it.artistName,
                             it.trackTimeMillis,
+                            it.previewUrl,
                             it.artworkUrl100,
                             it.collectionName,
                             it.releaseDate,
                             it.country,
-                            it.primaryGenreName,
-                            it.previewUrl
+                            it.primaryGenreName
                         )
                     }
                 )
