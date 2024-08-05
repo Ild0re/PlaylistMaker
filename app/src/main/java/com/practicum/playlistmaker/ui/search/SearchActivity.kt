@@ -74,7 +74,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var refreshButton: Button
     private lateinit var progressBar: ProgressBar
 
-    private val searchRunnable = Runnable { if (!searchEditText.text.isNullOrEmpty()) sendRequest() }
+    private var searchRunnable = Runnable { if (!searchEditText.text.isNullOrEmpty()) sendRequest() }
 
     private fun isDarkThemeEnabled(): Boolean {
         if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
@@ -291,43 +291,50 @@ class SearchActivity : AppCompatActivity() {
             placeholderImage.visibility = View.GONE
             progressBar.visibility = View.VISIBLE
 
+                getTracksSearchUseCase.search(
+                    searchEditText.text.toString(),
+                    object : Consumer<List<Track>> {
+                        override fun consume(data: List<Track>) {
+                            val currentRunnable = searchRunnable
+                            if (currentRunnable != null) {
+                                handler.removeCallbacks(currentRunnable)
+                            }
 
-            getTracksSearchUseCase.search(
-                searchEditText.text.toString(),
-                object : Consumer<List<Song>> {
-                    override fun consume(data: List<Song>) {
-                        progressBar.visibility = View.GONE
-                        if (data.isNotEmpty()) {
-                            rvTrack.visibility = View.VISIBLE
-                            placeholderMessage.visibility = View.GONE
-                            placeholderImage.visibility = View.GONE
-                            for (i in data) {
-                                if (i.results.isNotEmpty() == true) {
+                            val newTracksRunnable = Runnable {
+                                progressBar.visibility = View.GONE
+                                if (data.isNotEmpty() && data != null) {
+                                    rvTrack.visibility = View.VISIBLE
+                                    placeholderMessage.visibility = View.GONE
+                                    placeholderImage.visibility = View.GONE
                                     trackList.clear()
-                                    trackList.addAll(i.results!!)
+                                    trackList.addAll(data)
                                     songlistAdapter.notifyDataSetChanged()
-                                } else {
+                                } else if (data.isEmpty()) {
                                     showMessage(getString(R.string.nothing_to_show))
                                     if (isDarkThemeEnabled()) {
                                         placeholderImage.setImageResource(R.drawable.dark_mode)
                                     } else {
                                         placeholderImage.setImageResource(R.drawable.light_mode_1)
                                     }
+                                } else {
+                                    refreshButton.visibility = View.VISIBLE
+                                    showMessage(getString(R.string.internet_issue))
+                                    if (isDarkThemeEnabled()) {
+                                        placeholderImage.setImageResource(R.drawable.dark_mode_1)
+                                    } else {
+                                        placeholderImage.setImageResource(R.drawable.light_mode)
+                                    }
                                 }
                             }
-                        } else {
-                            refreshButton.visibility = View.VISIBLE
-                            showMessage(getString(R.string.internet_issue))
-                            if (isDarkThemeEnabled()) {
-                                placeholderImage.setImageResource(R.drawable.dark_mode_1)
-                            } else {
-                                placeholderImage.setImageResource(R.drawable.light_mode)
-                            }
-                        }
-                    }
-                })
+
+                            searchRunnable = newTracksRunnable
+                            handler.post(newTracksRunnable)}
+
+                    })
+            }
         }
-    }
+
+
 
 //                override fun onFailure(p0: Call<Song?>, p1: Throwable) {
 //                    progressBar.visibility = View.GONE
