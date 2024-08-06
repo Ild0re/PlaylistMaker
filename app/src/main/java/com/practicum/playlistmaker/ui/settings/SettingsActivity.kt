@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.switchmaterial.SwitchMaterial
-import com.practicum.playlistmaker.App
+import com.practicum.playlistmaker.ui.App
 import com.practicum.playlistmaker.R
 
 class SettingsActivity : AppCompatActivity() {

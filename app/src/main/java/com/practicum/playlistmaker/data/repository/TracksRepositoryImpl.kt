@@ -1,7 +1,6 @@
 package com.practicum.playlistmaker.data.repository
 
 import com.practicum.playlistmaker.data.dto.TracksSearchResponse
-import com.practicum.playlistmaker.domain.models.Song
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.domain.repository.TracksRepository
 

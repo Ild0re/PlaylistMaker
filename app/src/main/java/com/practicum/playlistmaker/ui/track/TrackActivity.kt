@@ -35,7 +35,8 @@ class TrackActivity : AppCompatActivity() {
 
     private val myRunnable = object : Runnable {
         override fun run() {
-            timeCount.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)
+            timeCount.text =
+                SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)
             mainThreadHandler?.postDelayed(this, DELAY)
 
         }
@@ -131,7 +132,8 @@ class TrackActivity : AppCompatActivity() {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             dp,
-            context.resources.displayMetrics).toInt()
+            context.resources.displayMetrics
+        ).toInt()
     }
 
     private fun receiveIntent(): String? {
@@ -141,10 +143,11 @@ class TrackActivity : AppCompatActivity() {
     }
 
     private fun playbackControl() {
-        when(playerState) {
+        when (playerState) {
             STATE_PLAYING -> {
                 pausePlayer()
             }
+
             STATE_PREPARED, STATE_PAUSED -> {
                 startPlayer()
             }

@@ -20,22 +20,11 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.practicum.playlistmaker.Creator
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.data.network.TrackAPI
 import com.practicum.playlistmaker.domain.consumer.Consumer
-import com.practicum.playlistmaker.domain.models.Song
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.ui.track.TrackActivity
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-
-const val HISTORY_PREFERENCES = "history_preferences"
-const val HISTORY_KEY = "history_key"
 
 class SearchActivity : AppCompatActivity() {
 
@@ -49,15 +38,6 @@ class SearchActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private var text = ""
 
-    /*private val trackBaseUrl = "https://itunes.apple.com"
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(trackBaseUrl)
-        .addConverterFactory(
-            GsonConverterFactory
-            .create())
-        .build()
-
-    private val trackService = retrofit.create(TrackAPI::class.java)*/
     private val trackList = ArrayList<Track>()
     private var historyList = ArrayList<Track>()
     private val songlistAdapter = SearchAdapter(trackList, ::onTrackClickListener)
@@ -74,7 +54,8 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var refreshButton: Button
     private lateinit var progressBar: ProgressBar
 
-    private var searchRunnable = Runnable { if (!searchEditText.text.isNullOrEmpty()) sendRequest() }
+    private var searchRunnable =
+        Runnable { if (!searchEditText.text.isNullOrEmpty()) sendRequest() }
 
     private fun isDarkThemeEnabled(): Boolean {
         if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
@@ -114,6 +95,8 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
+        val getTracksSharedPreferences = Creator.provideTracksSharedPreferencesUseCase(this)
+
         val buttonBack = findViewById<ImageButton>(R.id.buttonBackToMenu)
         searchEditText = findViewById(R.id.inputEditText)
         val clearButton = findViewById<ImageButton>(R.id.clearButton)
@@ -145,12 +128,13 @@ class SearchActivity : AppCompatActivity() {
 
         searchEditText.background.clearColorFilter()
 
-        val sharedPreferences = getSharedPreferences(HISTORY_PREFERENCES, MODE_PRIVATE)
-
         searchEditText.setOnFocusChangeListener { view, hasFocus ->
-            historyText.visibility = if (hasFocus && searchEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
-            rvHistory.visibility = if (hasFocus && searchEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
-            cleanHistoryButton.visibility = if (hasFocus && searchEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+            historyText.visibility =
+                if (hasFocus && searchEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+            rvHistory.visibility =
+                if (hasFocus && searchEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+            cleanHistoryButton.visibility =
+                if (hasFocus && searchEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
         }
 
         buttonBack.setOnClickListener {
@@ -182,9 +166,12 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                historyText.visibility = if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
-                rvHistory.visibility = if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
-                cleanHistoryButton.visibility = if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+                historyText.visibility =
+                    if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+                rvHistory.visibility =
+                    if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+                cleanHistoryButton.visibility =
+                    if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
                 searchDebounce()
             }
         })
@@ -195,7 +182,8 @@ class SearchActivity : AppCompatActivity() {
 
         clearButton.setOnClickListener {
             searchEditText.setText("")
-            val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            val inputMethodManager =
+                getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(clearButton.windowToken, 0)
             clearButton.visibility = View.GONE
             trackList.clear()
@@ -219,27 +207,22 @@ class SearchActivity : AppCompatActivity() {
             false
         }
 
-
-        val spTracks = sharedPreferences.getString(HISTORY_KEY, null)
+        val spTracks = getTracksSharedPreferences.getTrack()
         if (spTracks != null) {
             historyList.clear()
-            historyList.addAll(createTracksListFromJson(spTracks))
+            historyList.addAll(spTracks)
             historySonglistAdapter.notifyDataSetChanged()
         }
 
-        sharedPreferences.edit()
-            .putString(HISTORY_KEY, createJsonFromTrackList(historyList))
-            .apply()
+        getTracksSharedPreferences.saveTracks(historyList)
 
     }
 
     override fun onStop() {
         super.onStop()
 
-        val sharedPreferences = getSharedPreferences(HISTORY_PREFERENCES, MODE_PRIVATE)
-        sharedPreferences.edit()
-            .putString(HISTORY_KEY, createJsonFromTrackList(historyList))
-            .apply()
+        val getTracksSharedPreferences = Creator.provideTracksSharedPreferencesUseCase(this)
+        getTracksSharedPreferences.saveTracks(historyList)
 
     }
 
@@ -290,36 +273,11 @@ class SearchActivity : AppCompatActivity() {
                         }
 
                         searchRunnable = newTracksRunnable
-                        handler.post(newTracksRunnable)}
+                        handler.post(newTracksRunnable)
+                    }
 
                 })
-            }
         }
-
-
-
-//                override fun onFailure(p0: Call<Song?>, p1: Throwable) {
-//                    progressBar.visibility = View.GONE
-//                    refreshButton.visibility = View.VISIBLE
-//                    showMessage(getString(R.string.internet_issue))
-//                    if (isDarkThemeEnabled()) {
-//                        placeholderImage.setImageResource(R.drawable.dark_mode_1)
-//                    } else {
-//                        placeholderImage.setImageResource(R.drawable.light_mode)
-//                    }
-//                }
-//
-//            })
-//        }
-
-
-    private fun createJsonFromTrackList(tracks: ArrayList<Track>) : String {
-        return Gson().toJson(tracks)
-    }
-
-    private fun createTracksListFromJson(json: String): ArrayList<Track>{
-        val type = object : TypeToken<ArrayList<Track>>() {}.type
-        return Gson().fromJson(json, type)
     }
 
     private fun onTrackClickListener(track: Track) {
@@ -342,7 +300,7 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun clickDebounce() : Boolean {
+    private fun clickDebounce(): Boolean {
         val current = isClickAllowed
         if (isClickAllowed) {
             isClickAllowed = false

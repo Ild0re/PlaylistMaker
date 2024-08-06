@@ -1,10 +1,8 @@
-package com.practicum.playlistmaker
+package com.practicum.playlistmaker.ui
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
-
-const val PREFERENCES = "dark_mode_preferences"
-const val DARK_THEME = "dark_theme"
+import com.practicum.playlistmaker.Creator
 
 class App : Application() {
 
@@ -13,19 +11,20 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        val sharedPref = getSharedPreferences(PREFERENCES, MODE_PRIVATE)
+        val getThemeSharedPreferencesUseCase = Creator.provideThemeSharedPreferencesUseCase(this)
 
-        var themeKey = sharedPref.getString(DARK_THEME, "")
+        var themeKey = getThemeSharedPreferencesUseCase.getTheme()
 
-        when(themeKey) {
+        when (themeKey) {
             "true" -> darkTheme = true
             else -> darkTheme = false
         }
 
     }
+
     fun switchTheme(darkThemeEnabled: Boolean) {
         darkTheme = darkThemeEnabled
-        val sharedPref = getSharedPreferences(PREFERENCES, MODE_PRIVATE)
+        val getThemeSharedPreferencesUseCase = Creator.provideThemeSharedPreferencesUseCase(this)
         AppCompatDelegate.setDefaultNightMode(
             if (darkThemeEnabled) {
                 AppCompatDelegate.MODE_NIGHT_YES
@@ -33,8 +32,6 @@ class App : Application() {
                 AppCompatDelegate.MODE_NIGHT_NO
             }
         )
-        sharedPref.edit()
-            .putString(DARK_THEME, darkTheme.toString())
-            .apply()
+        getThemeSharedPreferencesUseCase.saveTheme(darkTheme)
     }
 }
