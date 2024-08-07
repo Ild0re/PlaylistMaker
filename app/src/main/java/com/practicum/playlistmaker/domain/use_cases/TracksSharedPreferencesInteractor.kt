@@ -2,7 +2,7 @@ package com.practicum.playlistmaker.domain.use_cases
 
 import com.practicum.playlistmaker.domain.models.Track
 
-interface TracksSharedPreferencesUseCase {
+interface TracksSharedPreferencesInteractor {
 
     fun getTrack(): List<Track>
 

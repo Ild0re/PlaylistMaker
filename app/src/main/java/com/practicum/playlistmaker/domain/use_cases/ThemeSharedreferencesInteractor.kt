@@ -1,6 +1,6 @@
 package com.practicum.playlistmaker.domain.use_cases
 
-interface ThemeSharedreferencesUseCase {
+interface ThemeSharedreferencesInteractor {
 
     fun getTheme(): String
 

@@ -3,10 +3,10 @@ package com.practicum.playlistmaker.domain.impl
 import com.practicum.playlistmaker.domain.consumer.Consumer
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.domain.repository.TracksRepository
-import com.practicum.playlistmaker.domain.use_cases.TracksSearchUseCase
+import com.practicum.playlistmaker.domain.use_cases.TracksSearchInteractor
 import java.util.concurrent.Executors
 
-class TracksSearchUseCaseImpl(private val repository: TracksRepository) : TracksSearchUseCase {
+class TracksSearchInteractorImpl(private val repository: TracksRepository) : TracksSearchInteractor {
 
     private val executor = Executors.newCachedThreadPool()
 

@@ -16,6 +16,7 @@ import androidx.constraintlayout.widget.Group
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.gson.Gson
+import com.practicum.playlistmaker.Creator
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.domain.models.Track
 import java.text.SimpleDateFormat
@@ -33,10 +34,15 @@ class TrackActivity : AppCompatActivity() {
         private const val CORNERS_FOR_IMAGE = 8f
     }
 
+    private val mediaPlayerUseCase = Creator.provideMediaPlayerUseCase()
+
     private val myRunnable = object : Runnable {
         override fun run() {
             timeCount.text =
-                SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)
+                SimpleDateFormat(
+                    "mm:ss",
+                    Locale.getDefault()
+                ).format(Creator.mediaPlayer.currentPosition)
             mainThreadHandler?.postDelayed(this, DELAY)
 
         }
@@ -48,7 +54,6 @@ class TrackActivity : AppCompatActivity() {
     private lateinit var playButton: ImageButton
     private lateinit var timeCount: TextView
     private lateinit var trackUrl: String
-    private var mediaPlayer = MediaPlayer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,7 +118,7 @@ class TrackActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mainThreadHandler?.removeCallbacks(myRunnable)
-        mediaPlayer.release()
+        mediaPlayerUseCase.release()
     }
 
     private fun createTracksListFromJson(json: String): Track {
@@ -155,13 +160,12 @@ class TrackActivity : AppCompatActivity() {
     }
 
     private fun preparePlayer() {
-        mediaPlayer.setDataSource(trackUrl)
-        mediaPlayer.prepareAsync()
-        mediaPlayer.setOnPreparedListener {
+        mediaPlayerUseCase.prepare(trackUrl)
+        Creator.mediaPlayer.setOnPreparedListener {
             playButton.isEnabled = true
             playerState = STATE_PREPARED
         }
-        mediaPlayer.setOnCompletionListener {
+        Creator.mediaPlayer.setOnCompletionListener {
             choosePlayImageForPlayButton()
             playerState = STATE_PREPARED
             mainThreadHandler?.removeCallbacks(myRunnable)
@@ -170,13 +174,13 @@ class TrackActivity : AppCompatActivity() {
     }
 
     private fun startPlayer() {
-        mediaPlayer.start()
+        mediaPlayerUseCase.start()
         choosePauseImageForPlayButton()
         playerState = STATE_PLAYING
     }
 
     private fun pausePlayer() {
-        mediaPlayer.pause()
+        mediaPlayerUseCase.pause()
         choosePlayImageForPlayButton()
         mainThreadHandler?.removeCallbacks(myRunnable)
         playerState = STATE_PAUSED

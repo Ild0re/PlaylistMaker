@@ -2,10 +2,10 @@ package com.practicum.playlistmaker.domain.impl
 
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.domain.repository.TracksSharedPreferencesRepository
-import com.practicum.playlistmaker.domain.use_cases.TracksSharedPreferencesUseCase
+import com.practicum.playlistmaker.domain.use_cases.TracksSharedPreferencesInteractor
 
-class TracksSharedPreferencesUseCaseImpl(private val repository: TracksSharedPreferencesRepository) :
-    TracksSharedPreferencesUseCase {
+class TracksSharedPreferencesInteractorImpl(private val repository: TracksSharedPreferencesRepository) :
+    TracksSharedPreferencesInteractor {
     override fun getTrack(): List<Track> {
         return repository.getTracks()
     }
