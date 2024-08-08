@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker
+package com.practicum.playlistmaker.ui.search
 
 import android.view.View
 import android.widget.ImageView
@@ -6,10 +6,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.domain.models.Track
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class TrackViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     private val albumImage: ImageView = itemView.findViewById(R.id.album_image)
     private val songName: TextView = itemView.findViewById(R.id.song_name)
@@ -25,7 +27,8 @@ class TrackViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
             .placeholder(R.drawable.placeholder)
             .centerCrop()
             .transform(
-                RoundedCorners(4))
+                RoundedCorners(4)
+            )
             .into(albumImage)
     }
 }
