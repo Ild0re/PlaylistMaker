@@ -1,0 +1,19 @@
+package com.practicum.playlistmaker.domain.search.impl
+
+import com.practicum.playlistmaker.domain.consumer.Consumer
+import com.practicum.playlistmaker.domain.models.Track
+import com.practicum.playlistmaker.data.search.SearchRepository
+import com.practicum.playlistmaker.domain.search.interactor.SearchInteractor
+import java.util.concurrent.Executors
+
+class SearchInteractorImpl(private val repository: SearchRepository) : SearchInteractor {
+
+    private val executor = Executors.newCachedThreadPool()
+
+    override fun search(expression: String, consumer: Consumer<List<Track>>) {
+        executor.execute {
+            val trackList = expression.let { repository.search(expression) }
+            consumer.consume(trackList)
+        }
+    }
+}
