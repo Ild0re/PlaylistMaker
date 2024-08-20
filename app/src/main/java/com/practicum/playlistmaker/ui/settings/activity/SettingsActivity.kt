@@ -10,10 +10,9 @@ import com.practicum.playlistmaker.ui.settings.view_model.SettingsViewModel
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
 
-    val viewModel by lazy{
+    val viewModel by lazy {
         ViewModelProvider(this)[(SettingsViewModel::class.java)]
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +38,6 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.userDoc.setOnClickListener {
             startActivity(viewModel.onOpenTerms())
-
         }
     }
 }

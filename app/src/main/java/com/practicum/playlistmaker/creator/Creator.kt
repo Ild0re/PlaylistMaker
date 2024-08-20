@@ -1,5 +1,6 @@
 package com.practicum.playlistmaker.creator
 
+import android.app.Application
 import android.content.Context
 import android.media.MediaPlayer
 import com.practicum.playlistmaker.data.network.RetrofitNetworkClient
@@ -26,7 +27,13 @@ import com.practicum.playlistmaker.domain.track.interactor.MediaPlayerInteractor
 
 object Creator {
 
+    lateinit var application: Application
+
     val mediaPlayer = MediaPlayer()
+
+    fun initApplication(context: Context) {
+        application = context as Application
+    }
 
     private fun getTracksRepository(): SearchRepository {
         return SearchRepositoryImpl(RetrofitNetworkClient())
@@ -64,7 +71,7 @@ object Creator {
         return ExternalNavigatorImpl(context)
     }
 
-    fun provideSharingInteractor(context: Context): SharingInteractor {
-        return SharingInteractorImpl(getExternalNavigator(context))
+    fun provideSharingInteractor(): SharingInteractor {
+        return SharingInteractorImpl(getExternalNavigator(application))
     }
 }

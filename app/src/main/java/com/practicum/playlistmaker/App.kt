@@ -10,8 +10,10 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        Creator.initApplication(this)
         val getThemeSharedPreferencesUseCase = Creator.provideThemeStorageUseCase(this)
         var themeKey = getThemeSharedPreferencesUseCase.getTheme()
+
 
         when (themeKey) {
             "true" -> darkTheme = true

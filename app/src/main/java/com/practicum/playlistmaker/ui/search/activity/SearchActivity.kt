@@ -20,8 +20,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
-import com.practicum.playlistmaker.creator.Creator
 import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.creator.Creator
+import com.practicum.playlistmaker.databinding.ActivitySearchBinding
 import com.practicum.playlistmaker.domain.consumer.Consumer
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.ui.track.activity.TrackActivity
@@ -45,6 +46,7 @@ class SearchActivity : AppCompatActivity() {
 
     private val getTracksSearchUseCase = Creator.provideTracksSearchUseCase()
 
+    private lateinit var binding: ActivitySearchBinding
     private lateinit var placeholderMessage: TextView
     private lateinit var placeholderImage: ImageView
     private lateinit var rvTrack: RecyclerView
@@ -65,7 +67,6 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString("text", text)
@@ -73,14 +74,14 @@ class SearchActivity : AppCompatActivity() {
 
     private fun showMessage(text: String) {
         if (text.isNotEmpty()) {
-            placeholderMessage.visibility = View.VISIBLE
-            placeholderImage.visibility = View.VISIBLE
-            rvTrack.visibility = View.GONE
+            binding.placeholderText.visibility = View.VISIBLE
+            binding.placeholderImage.visibility = View.VISIBLE
+            binding.recyclerView.visibility = View.GONE
             trackList.clear()
             songlistAdapter.notifyDataSetChanged()
-            placeholderMessage.text = text
+            binding.placeholderText.text = text
         } else {
-            rvTrack.visibility = View.VISIBLE
+            binding.recyclerView.visibility = View.VISIBLE
             placeholderMessage.visibility = View.GONE
             placeholderImage.visibility = View.GONE
         }
@@ -93,7 +94,8 @@ class SearchActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_search)
+        binding = ActivitySearchBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val getTracksSharedPreferences = Creator.provideTracksStorageUseCase(this)
 
@@ -111,7 +113,7 @@ class SearchActivity : AppCompatActivity() {
 
 
         rvHistory.adapter = historySonglistAdapter
-        rvTrack.adapter = songlistAdapter
+        binding.recyclerView.adapter = songlistAdapter
 
         if (historyList.isNullOrEmpty()) {
             historySonglistAdapter.notifyDataSetChanged()
@@ -153,7 +155,7 @@ class SearchActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {
                 if (s.isNullOrEmpty()) {
                     clearButton.visibility = View.GONE
-                    rvTrack.visibility = View.GONE
+                    binding.recyclerView.visibility = View.GONE
                     placeholderMessage.visibility = View.GONE
                     placeholderImage.visibility = View.GONE
                 } else {
@@ -189,7 +191,7 @@ class SearchActivity : AppCompatActivity() {
             trackList.clear()
             songlistAdapter.notifyDataSetChanged()
             handler.removeCallbacks(searchRunnable)
-            rvTrack.visibility = View.GONE
+            binding.recyclerView.visibility = View.GONE
             placeholderMessage.visibility = View.GONE
             placeholderImage.visibility = View.GONE
         }
@@ -233,7 +235,7 @@ class SearchActivity : AppCompatActivity() {
 
     private fun sendRequest() {
         if (searchEditText.text.isNotEmpty()) {
-            rvTrack.visibility = View.GONE
+            binding.recyclerView.visibility = View.GONE
             placeholderMessage.visibility = View.GONE
             placeholderImage.visibility = View.GONE
             progressBar.visibility = View.VISIBLE
@@ -248,7 +250,7 @@ class SearchActivity : AppCompatActivity() {
                         val newTracksRunnable = Runnable {
                             progressBar.visibility = View.GONE
                             if (data.isNotEmpty() && data != null) {
-                                rvTrack.visibility = View.VISIBLE
+                                binding.recyclerView.visibility = View.VISIBLE
                                 placeholderMessage.visibility = View.GONE
                                 placeholderImage.visibility = View.GONE
                                 trackList.clear()
