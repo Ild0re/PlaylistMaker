@@ -51,12 +51,12 @@ object Creator {
         return TracksStorageInteractorImpl(getTracksStorageRepository(context))
     }
 
-    private fun getThemeStorageRepository(context: Context): ThemeStorageRepository {
-        return ThemeStorageRepositoryImpl(context)
+    private fun getThemeStorageRepository(): ThemeStorageRepository {
+        return ThemeStorageRepositoryImpl()
     }
 
-    fun provideThemeStorageUseCase(context: Context): ThemeStorageInteractor {
-        return ThemeStorageInteractorImpl(getThemeStorageRepository(context))
+    fun provideThemeStorageUseCase(): ThemeStorageInteractor {
+        return ThemeStorageInteractorImpl(getThemeStorageRepository())
     }
 
     private fun getMediaPlayerRepository(): MediaPlayerRepository {
@@ -67,11 +67,11 @@ object Creator {
         return MediaPlayerInteractorImpl(getMediaPlayerRepository())
     }
 
-    private fun getExternalNavigator(context: Context): ExternalNavigator {
-        return ExternalNavigatorImpl(context)
+    private fun getExternalNavigator(): ExternalNavigator {
+        return ExternalNavigatorImpl()
     }
 
     fun provideSharingInteractor(): SharingInteractor {
-        return SharingInteractorImpl(getExternalNavigator(application))
+        return SharingInteractorImpl(getExternalNavigator())
     }
 }

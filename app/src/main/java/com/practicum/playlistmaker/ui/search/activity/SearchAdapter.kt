@@ -3,7 +3,7 @@ package com.practicum.playlistmaker.ui.search.activity
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.databinding.SonglistViewBinding
 import com.practicum.playlistmaker.domain.models.Track
 
 class SearchAdapter(
@@ -12,9 +12,8 @@ class SearchAdapter(
 ) : RecyclerView.Adapter<TrackViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.songlist_view, parent, false)
-        return TrackViewHolder(view)
+        val layoutInspector = LayoutInflater.from(parent.context)
+        return TrackViewHolder(SonglistViewBinding.inflate(layoutInspector, parent, false))
     }
 
     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {

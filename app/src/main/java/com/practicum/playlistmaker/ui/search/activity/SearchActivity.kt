@@ -11,20 +11,15 @@ import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
+import androidx.lifecycle.ViewModelProvider
 import com.google.gson.Gson
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.creator.Creator
 import com.practicum.playlistmaker.databinding.ActivitySearchBinding
-import com.practicum.playlistmaker.domain.consumer.Consumer
 import com.practicum.playlistmaker.domain.models.Track
+import com.practicum.playlistmaker.presentation.state.ScreenState
+import com.practicum.playlistmaker.ui.search.view_model.SearchViewModel
 import com.practicum.playlistmaker.ui.track.activity.TrackActivity
 
 class SearchActivity : AppCompatActivity() {
@@ -44,20 +39,13 @@ class SearchActivity : AppCompatActivity() {
     private val songlistAdapter = SearchAdapter(trackList, ::onTrackClickListener)
     private val historySonglistAdapter = SearchAdapter(historyList, ::onTrackClickListener)
 
-    private val getTracksSearchUseCase = Creator.provideTracksSearchUseCase()
-
     private lateinit var binding: ActivitySearchBinding
-    private lateinit var placeholderMessage: TextView
-    private lateinit var placeholderImage: ImageView
-    private lateinit var rvTrack: RecyclerView
-    private lateinit var historyText: TextView
-    private lateinit var rvHistory: RecyclerView
-    private lateinit var searchEditText: EditText
-    private lateinit var refreshButton: Button
-    private lateinit var progressBar: ProgressBar
+    private lateinit var viewModel: SearchViewModel
 
     private var searchRunnable =
-        Runnable { if (!searchEditText.text.isNullOrEmpty()) sendRequest() }
+        Runnable {
+            if (!binding.inputEditText.text.isNullOrEmpty()) viewModel.loadData(binding.inputEditText.text.toString())
+        }
 
     private fun isDarkThemeEnabled(): Boolean {
         if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
@@ -72,21 +60,6 @@ class SearchActivity : AppCompatActivity() {
         outState.putString("text", text)
     }
 
-    private fun showMessage(text: String) {
-        if (text.isNotEmpty()) {
-            binding.placeholderText.visibility = View.VISIBLE
-            binding.placeholderImage.visibility = View.VISIBLE
-            binding.recyclerView.visibility = View.GONE
-            trackList.clear()
-            songlistAdapter.notifyDataSetChanged()
-            binding.placeholderText.text = text
-        } else {
-            binding.recyclerView.visibility = View.VISIBLE
-            placeholderMessage.visibility = View.GONE
-            placeholderImage.visibility = View.GONE
-        }
-    }
-
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         text = savedInstanceState.getString("text", "")
@@ -99,67 +72,58 @@ class SearchActivity : AppCompatActivity() {
 
         val getTracksSharedPreferences = Creator.provideTracksStorageUseCase(this)
 
-        val buttonBack = findViewById<ImageButton>(R.id.buttonBackToMenu)
-        searchEditText = findViewById(R.id.inputEditText)
-        val clearButton = findViewById<ImageButton>(R.id.clearButton)
-        refreshButton = findViewById(R.id.button_refresh)
-        val cleanHistoryButton = findViewById<Button>(R.id.clean_history)
-        progressBar = findViewById(R.id.progressBar)
-        placeholderMessage = findViewById(R.id.placeholderText)
-        placeholderImage = findViewById(R.id.placeholderImage)
-        rvTrack = findViewById(R.id.recyclerView)
-        historyText = findViewById(R.id.history_text)
-        rvHistory = findViewById(R.id.recyclerViewHistory)
+        viewModel = ViewModelProvider(
+            this,
+            SearchViewModel.factory()
+        )[SearchViewModel::class.java]
 
-
-        rvHistory.adapter = historySonglistAdapter
+        binding.recyclerViewHistory.adapter = historySonglistAdapter
         binding.recyclerView.adapter = songlistAdapter
 
         if (historyList.isNullOrEmpty()) {
             historySonglistAdapter.notifyDataSetChanged()
-            historyText.visibility = View.GONE
-            rvHistory.visibility = View.GONE
-            cleanHistoryButton.visibility = View.GONE
+            binding.historyTextView.visibility = View.GONE
+            binding.recyclerViewHistory.visibility = View.GONE
+            binding.cleanHistoryButton.visibility = View.GONE
         } else {
             historySonglistAdapter.notifyDataSetChanged()
-            historyText.visibility = View.VISIBLE
-            rvHistory.visibility = View.VISIBLE
-            cleanHistoryButton.visibility = View.VISIBLE
+            binding.historyTextView.visibility = View.VISIBLE
+            binding.recyclerViewHistory.visibility = View.VISIBLE
+            binding.cleanHistoryButton.visibility = View.VISIBLE
         }
 
+        binding.inputEditText.background.clearColorFilter()
 
-        searchEditText.background.clearColorFilter()
-
-        searchEditText.setOnFocusChangeListener { view, hasFocus ->
-            historyText.visibility =
-                if (hasFocus && searchEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
-            rvHistory.visibility =
-                if (hasFocus && searchEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
-            cleanHistoryButton.visibility =
-                if (hasFocus && searchEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+        binding.inputEditText.setOnFocusChangeListener { view, hasFocus ->
+            binding.historyTextView.visibility =
+                if (hasFocus && binding.inputEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+            binding.recyclerViewHistory.visibility =
+                if (hasFocus && binding.inputEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+            binding.cleanHistoryButton.visibility =
+                if (hasFocus && binding.inputEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
         }
 
-        buttonBack.setOnClickListener {
+        binding.buttonBackToMenu.setOnClickListener {
             finish()
         }
 
-        cleanHistoryButton.setOnClickListener {
+        binding.cleanHistoryButton.setOnClickListener {
             historyList.clear()
             historySonglistAdapter.notifyDataSetChanged()
-            historyText.visibility = View.GONE
-            rvHistory.visibility = View.GONE
-            cleanHistoryButton.visibility = View.GONE
+            binding.historyTextView.visibility = View.GONE
+            binding.recyclerViewHistory.visibility = View.GONE
+            binding.cleanHistoryButton.visibility = View.GONE
         }
 
-        searchEditText.addTextChangedListener(object : TextWatcher {
+        binding.inputEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 if (s.isNullOrEmpty()) {
-                    clearButton.visibility = View.GONE
+                    binding.clearButton.visibility = View.GONE
                     binding.recyclerView.visibility = View.GONE
-                    placeholderMessage.visibility = View.GONE
-                    placeholderImage.visibility = View.GONE
+                    binding.placeholderText.visibility = View.GONE
+                    binding.placeholderImage.visibility = View.GONE
                 } else {
-                    clearButton.visibility = View.VISIBLE
+                    binding.clearButton.visibility = View.VISIBLE
                     text = s.toString()
                 }
             }
@@ -168,61 +132,59 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                historyText.visibility =
-                    if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
-                rvHistory.visibility =
-                    if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
-                cleanHistoryButton.visibility =
-                    if (searchEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+                binding.historyTextView.visibility =
+                    if (binding.inputEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+                binding.recyclerViewHistory.visibility =
+                    if (binding.inputEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
+                binding.cleanHistoryButton.visibility =
+                    if (binding.inputEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
                 searchDebounce()
             }
         })
 
         if (savedInstanceState != null) {
-            searchEditText.setText(text)
+            binding.inputEditText.setText(text)
         }
 
-        clearButton.setOnClickListener {
-            searchEditText.setText("")
+        binding.clearButton.setOnClickListener {
+            binding.inputEditText.setText("")
             val inputMethodManager =
                 getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-            inputMethodManager?.hideSoftInputFromWindow(clearButton.windowToken, 0)
-            clearButton.visibility = View.GONE
+            inputMethodManager?.hideSoftInputFromWindow(binding.clearButton.windowToken, 0)
+            binding.clearButton.visibility = View.GONE
             trackList.clear()
             songlistAdapter.notifyDataSetChanged()
             handler.removeCallbacks(searchRunnable)
             binding.recyclerView.visibility = View.GONE
-            placeholderMessage.visibility = View.GONE
-            placeholderImage.visibility = View.GONE
+            binding.placeholderText.visibility = View.GONE
+            binding.placeholderImage.visibility = View.GONE
         }
 
-
-        refreshButton.setOnClickListener {
-            refreshButton.visibility = View.GONE
-            sendRequest()
+        binding.buttonRefresh.setOnClickListener {
+            binding.buttonRefresh.visibility = View.GONE
+            viewModel.loadData(binding.inputEditText.text.toString())
         }
-
-        searchEditText.setOnEditorActionListener { _, actionId, _ ->
+        binding.inputEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                sendRequest()
+                viewModel.loadData(binding.inputEditText.text.toString())
             }
             false
         }
-
         val spTracks = getTracksSharedPreferences.getTrack()
         if (spTracks != null) {
             historyList.clear()
             historyList.addAll(spTracks)
             historySonglistAdapter.notifyDataSetChanged()
         }
-
         getTracksSharedPreferences.saveTracks(historyList)
 
+        viewModel.getState().observe(this) { state ->
+            render(state)
+        }
     }
 
     override fun onStop() {
         super.onStop()
-
         val getTracksSharedPreferences = Creator.provideTracksStorageUseCase(this)
         getTracksSharedPreferences.saveTracks(historyList)
 
@@ -233,54 +195,82 @@ class SearchActivity : AppCompatActivity() {
         handler.removeCallbacksAndMessages(null)
     }
 
-    private fun sendRequest() {
-        if (searchEditText.text.isNotEmpty()) {
-            binding.recyclerView.visibility = View.GONE
-            placeholderMessage.visibility = View.GONE
-            placeholderImage.visibility = View.GONE
-            progressBar.visibility = View.VISIBLE
-            getTracksSearchUseCase.search(
-                searchEditText.text.toString(),
-                object : Consumer<List<Track>> {
-                    override fun consume(data: List<Track>) {
-                        val currentRunnable = searchRunnable
-                        if (currentRunnable != null) {
-                            handler.removeCallbacks(currentRunnable)
-                        }
-                        val newTracksRunnable = Runnable {
-                            progressBar.visibility = View.GONE
-                            if (data.isNotEmpty() && data != null) {
-                                binding.recyclerView.visibility = View.VISIBLE
-                                placeholderMessage.visibility = View.GONE
-                                placeholderImage.visibility = View.GONE
-                                trackList.clear()
-                                trackList.addAll(data)
-                                songlistAdapter.notifyDataSetChanged()
-                            } else if (data.isEmpty()) {
-                                showMessage(getString(R.string.nothing_to_show))
-                                if (isDarkThemeEnabled()) {
-                                    placeholderImage.setImageResource(R.drawable.dark_mode)
-                                } else {
-                                    placeholderImage.setImageResource(R.drawable.light_mode_1)
-                                }
-                            } else {
-                                refreshButton.visibility = View.VISIBLE
-                                showMessage(getString(R.string.internet_issue))
-                                if (isDarkThemeEnabled()) {
-                                    placeholderImage.setImageResource(R.drawable.dark_mode_1)
-                                } else {
-                                    placeholderImage.setImageResource(R.drawable.light_mode)
-                                }
-                            }
-                        }
-
-                        searchRunnable = newTracksRunnable
-                        handler.post(newTracksRunnable)
-                    }
-
-                })
+    private fun render(state: ScreenState) {
+        val currentRunnable = searchRunnable
+        if (currentRunnable != null) {
+            handler.removeCallbacks(currentRunnable)
         }
+        val newTracksRunnable = Runnable {
+            when (state) {
+                is ScreenState.Loading -> showLoading()
+                is ScreenState.Content -> showData(state.data)
+                is ScreenState.Error -> {
+                    binding.buttonRefresh.visibility = View.VISIBLE
+                    showMessage(state.message)
+                    if (isDarkThemeEnabled()) {
+                        binding.placeholderImage.setImageResource(R.drawable.dark_mode_1)
+                    } else {
+                        binding.placeholderImage.setImageResource(R.drawable.light_mode)
+                    }
+                }
+
+                is ScreenState.Empty -> {
+                    showMessage(state.message)
+                    if (isDarkThemeEnabled()) {
+                        binding.placeholderImage.setImageResource(R.drawable.dark_mode)
+                    } else {
+                        binding.placeholderImage.setImageResource(R.drawable.light_mode_1)
+                    }
+                }
+            }
+        }
+        searchRunnable = newTracksRunnable
+        handler.post(newTracksRunnable)
     }
+
+//    private fun sendRequest() {
+//        if (binding.inputEditText.text.isNotEmpty()) {
+//            showLoading()
+//            getTracksSearchUseCase.search(
+//                binding.inputEditText.text.toString(),
+//                object : Consumer<List<Track>> {
+//                    override fun consume(data: List<Track>) {
+//                        val currentRunnable = searchRunnable
+//                        if (currentRunnable != null) {
+//                            handler.removeCallbacks(currentRunnable)
+//                        }
+//                        val newTracksRunnable = Runnable {
+//                            binding.progressBar.visibility = View.GONE
+//                            if (data.isNotEmpty() && data != null) {
+//                                binding.recyclerView.visibility = View.VISIBLE
+//                                binding.placeholderText.visibility = View.GONE
+//                                binding.placeholderImage.visibility = View.GONE
+//                                trackList.clear()
+//                                trackList.addAll(data)
+//                                songlistAdapter.notifyDataSetChanged()
+//                            } else if (data.isEmpty()) {
+//                                showMessage(getString(R.string.nothing_to_show))
+//                                if (isDarkThemeEnabled()) {
+//                                    binding.placeholderImage.setImageResource(R.drawable.dark_mode)
+//                                } else {
+//                                    binding.placeholderImage.setImageResource(R.drawable.light_mode_1)
+//                                }
+//                            } else {
+//                                binding.buttonRefresh.visibility = View.VISIBLE
+//                                showMessage(getString(R.string.internet_issue))
+//                                if (isDarkThemeEnabled()) {
+//                                    binding.placeholderImage.setImageResource(R.drawable.dark_mode_1)
+//                                } else {
+//                                    binding.placeholderImage.setImageResource(R.drawable.light_mode)
+//                                }
+//                            }
+//                        }
+//                        searchRunnable = newTracksRunnable
+//                        handler.post(newTracksRunnable)
+//                    }
+//                })
+//        }
+//    }
 
     private fun onTrackClickListener(track: Track) {
         if (track !in historyList) {
@@ -314,5 +304,38 @@ class SearchActivity : AppCompatActivity() {
     private fun searchDebounce() {
         handler.removeCallbacks(searchRunnable)
         handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
+    }
+
+    private fun showLoading() {
+        binding.recyclerView.visibility = View.GONE
+        binding.placeholderText.visibility = View.GONE
+        binding.placeholderImage.visibility = View.GONE
+        binding.progressBar.visibility = View.VISIBLE
+    }
+
+    private fun showData(data: List<Track>) {
+        binding.progressBar.visibility = View.GONE
+        binding.recyclerView.visibility = View.VISIBLE
+        binding.placeholderText.visibility = View.GONE
+        binding.placeholderImage.visibility = View.GONE
+        trackList.clear()
+        trackList.addAll(data)
+        songlistAdapter.notifyDataSetChanged()
+    }
+
+    private fun showMessage(text: String) {
+        binding.progressBar.visibility = View.GONE
+        if (text.isNotEmpty()) {
+            binding.placeholderText.visibility = View.VISIBLE
+            binding.placeholderImage.visibility = View.VISIBLE
+            binding.recyclerView.visibility = View.GONE
+            trackList.clear()
+            songlistAdapter.notifyDataSetChanged()
+            binding.placeholderText.text = text
+        } else {
+            binding.recyclerView.visibility = View.VISIBLE
+            binding.placeholderText.visibility = View.GONE
+            binding.placeholderImage.visibility = View.GONE
+        }
     }
 }

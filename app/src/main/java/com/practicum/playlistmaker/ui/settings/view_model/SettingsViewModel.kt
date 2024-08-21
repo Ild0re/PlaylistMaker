@@ -1,13 +1,13 @@
 package com.practicum.playlistmaker.ui.settings.view_model
 
-import android.app.Application
 import android.content.Intent
 import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.ViewModel
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.creator.Creator
 
-class SettingsViewModel(application: Application) : AndroidViewModel(application) {
+class SettingsViewModel : ViewModel() {
 
     private val getSharingUseCase = Creator.provideSharingInteractor()
 
@@ -15,7 +15,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         val shareIntent = Intent(Intent.ACTION_SEND)
         shareIntent.type = "text/plain"
         shareIntent.putExtra(Intent.EXTRA_TEXT, getSharingUseCase.shareApp())
-        val chooser = Intent.createChooser(shareIntent, Creator.application.getString(R.string.ButtonShare))
+        val chooser =
+            Intent.createChooser(shareIntent, Creator.application.getString(R.string.ButtonShare))
         return chooser
     }
 
@@ -34,4 +35,16 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         return supportIntent
     }
 
+    fun switchTheme(darkThemeEnabled: Boolean) {
+        val darkTheme = darkThemeEnabled
+        val getThemeSharedPreferencesUseCase = Creator.provideThemeStorageUseCase()
+        AppCompatDelegate.setDefaultNightMode(
+            if (darkThemeEnabled) {
+                AppCompatDelegate.MODE_NIGHT_YES
+            } else {
+                AppCompatDelegate.MODE_NIGHT_NO
+            }
+        )
+        getThemeSharedPreferencesUseCase.saveTheme(darkTheme)
+    }
 }

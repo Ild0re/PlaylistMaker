@@ -1,11 +1,10 @@
 package com.practicum.playlistmaker.data.sharing
 
-import android.content.Context
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.creator.Creator
 import com.practicum.playlistmaker.domain.sharing.model.EmailData
 
-class ExternalNavigatorImpl(private val context: Context) : ExternalNavigator {
+class ExternalNavigatorImpl : ExternalNavigator {
 
     override fun shareLink(): String {
         val appLink = Creator.application.getString(R.string.linkShare)
