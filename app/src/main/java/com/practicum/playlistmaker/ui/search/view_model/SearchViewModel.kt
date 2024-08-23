@@ -14,6 +14,7 @@ import com.practicum.playlistmaker.presentation.state.ScreenState
 
 class SearchViewModel : ViewModel() {
     private val getSearchInteractor = Creator.provideTracksSearchUseCase()
+    private val getTracksStorageInteractor = Creator.provideTracksStorageUseCase()
 
     private val state = MutableLiveData<ScreenState>()
 
@@ -28,7 +29,7 @@ class SearchViewModel : ViewModel() {
                 override fun consume(data: List<Track>) {
                     if (data.isNotEmpty() && data != null) {
                         val content = ScreenState.Content(data)
-                        state.value = content
+                        state.postValue(content)
                     } else if (data.isEmpty()) {
                         val error =
                             ScreenState.Empty(Creator.application.getString(R.string.nothing_to_show))
@@ -39,8 +40,15 @@ class SearchViewModel : ViewModel() {
                         state.postValue(error)
                     }
                 }
-            }
-        )
+            })
+    }
+
+    fun loadHistory(): List<Track> {
+        return getTracksStorageInteractor.getTrack()
+    }
+
+    fun saveHistory(list: List<Track>): List<Track> {
+        return getTracksStorageInteractor.saveTracks(list)
     }
 
     companion object {

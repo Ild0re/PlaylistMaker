@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.gson.Gson
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.creator.Creator
 import com.practicum.playlistmaker.databinding.ActivitySearchBinding
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.presentation.state.ScreenState
@@ -70,8 +69,6 @@ class SearchActivity : AppCompatActivity() {
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val getTracksSharedPreferences = Creator.provideTracksStorageUseCase(this)
-
         viewModel = ViewModelProvider(
             this,
             SearchViewModel.factory()
@@ -90,6 +87,10 @@ class SearchActivity : AppCompatActivity() {
             binding.historyTextView.visibility = View.VISIBLE
             binding.recyclerViewHistory.visibility = View.VISIBLE
             binding.cleanHistoryButton.visibility = View.VISIBLE
+        }
+
+        viewModel.getState().observe(this) { state ->
+            render(state)
         }
 
         binding.inputEditText.background.clearColorFilter()
@@ -170,23 +171,20 @@ class SearchActivity : AppCompatActivity() {
             }
             false
         }
-        val spTracks = getTracksSharedPreferences.getTrack()
+
+        val spTracks = viewModel.loadHistory()
         if (spTracks != null) {
             historyList.clear()
             historyList.addAll(spTracks)
             historySonglistAdapter.notifyDataSetChanged()
         }
-        getTracksSharedPreferences.saveTracks(historyList)
+        viewModel.saveHistory(historyList)
 
-        viewModel.getState().observe(this) { state ->
-            render(state)
-        }
     }
 
     override fun onStop() {
         super.onStop()
-        val getTracksSharedPreferences = Creator.provideTracksStorageUseCase(this)
-        getTracksSharedPreferences.saveTracks(historyList)
+        viewModel.saveHistory(historyList)
 
     }
 
@@ -227,50 +225,6 @@ class SearchActivity : AppCompatActivity() {
         searchRunnable = newTracksRunnable
         handler.post(newTracksRunnable)
     }
-
-//    private fun sendRequest() {
-//        if (binding.inputEditText.text.isNotEmpty()) {
-//            showLoading()
-//            getTracksSearchUseCase.search(
-//                binding.inputEditText.text.toString(),
-//                object : Consumer<List<Track>> {
-//                    override fun consume(data: List<Track>) {
-//                        val currentRunnable = searchRunnable
-//                        if (currentRunnable != null) {
-//                            handler.removeCallbacks(currentRunnable)
-//                        }
-//                        val newTracksRunnable = Runnable {
-//                            binding.progressBar.visibility = View.GONE
-//                            if (data.isNotEmpty() && data != null) {
-//                                binding.recyclerView.visibility = View.VISIBLE
-//                                binding.placeholderText.visibility = View.GONE
-//                                binding.placeholderImage.visibility = View.GONE
-//                                trackList.clear()
-//                                trackList.addAll(data)
-//                                songlistAdapter.notifyDataSetChanged()
-//                            } else if (data.isEmpty()) {
-//                                showMessage(getString(R.string.nothing_to_show))
-//                                if (isDarkThemeEnabled()) {
-//                                    binding.placeholderImage.setImageResource(R.drawable.dark_mode)
-//                                } else {
-//                                    binding.placeholderImage.setImageResource(R.drawable.light_mode_1)
-//                                }
-//                            } else {
-//                                binding.buttonRefresh.visibility = View.VISIBLE
-//                                showMessage(getString(R.string.internet_issue))
-//                                if (isDarkThemeEnabled()) {
-//                                    binding.placeholderImage.setImageResource(R.drawable.dark_mode_1)
-//                                } else {
-//                                    binding.placeholderImage.setImageResource(R.drawable.light_mode)
-//                                }
-//                            }
-//                        }
-//                        searchRunnable = newTracksRunnable
-//                        handler.post(newTracksRunnable)
-//                    }
-//                })
-//        }
-//    }
 
     private fun onTrackClickListener(track: Track) {
         if (track !in historyList) {

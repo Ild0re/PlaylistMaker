@@ -43,12 +43,12 @@ object Creator {
         return SearchInteractorImpl(getTracksRepository())
     }
 
-    private fun getTracksStorageRepository(context: Context): TracksStorageRepository {
-        return TracksStorageRepositoryImpl(context)
+    private fun getTracksStorageRepository(): TracksStorageRepository {
+        return TracksStorageRepositoryImpl()
     }
 
-    fun provideTracksStorageUseCase(context: Context): TracksStorageInteractor {
-        return TracksStorageInteractorImpl(getTracksStorageRepository(context))
+    fun provideTracksStorageUseCase(): TracksStorageInteractor {
+        return TracksStorageInteractorImpl(getTracksStorageRepository())
     }
 
     private fun getThemeStorageRepository(): ThemeStorageRepository {

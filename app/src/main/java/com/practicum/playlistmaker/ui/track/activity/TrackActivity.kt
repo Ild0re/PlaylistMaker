@@ -7,17 +7,16 @@ import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
 import android.view.View
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.Group
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.gson.Gson
-import com.practicum.playlistmaker.creator.Creator
 import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.creator.Creator
+import com.practicum.playlistmaker.databinding.ActivityTrackBinding
 import com.practicum.playlistmaker.domain.models.Track
+import com.practicum.playlistmaker.ui.track.view_model.TrackViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -33,56 +32,47 @@ class TrackActivity : AppCompatActivity() {
         private const val CORNERS_FOR_IMAGE = 8f
     }
 
-    private val mediaPlayerUseCase = Creator.provideMediaPlayerUseCase()
+    private lateinit var binding: ActivityTrackBinding
+    private lateinit var viewModel: TrackViewModel
 
     private val myRunnable = object : Runnable {
         override fun run() {
-            timeCount.text =
+            binding.songTime.text =
                 SimpleDateFormat(
                     "mm:ss",
                     Locale.getDefault()
                 ).format(Creator.mediaPlayer.currentPosition)
             mainThreadHandler?.postDelayed(this, DELAY)
-
         }
     }
 
     private var playerState = STATE_DEFAULT
     private var mainThreadHandler: Handler? = null
 
-    private lateinit var playButton: ImageButton
-    private lateinit var timeCount: TextView
     private lateinit var trackUrl: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_track)
+        binding = ActivityTrackBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         mainThreadHandler = Handler(Looper.getMainLooper())
+
+        viewModel = ViewModelProvider(
+            this,
+            TrackViewModel.factory()
+        )[TrackViewModel::class.java]
 
         val track = createTracksListFromJson(receiveIntent().toString())
         trackUrl = track.previewUrl
 
-        val albumImage: ImageView = findViewById(R.id.cover)
-        val songName: TextView = findViewById(R.id.song_name)
-        val singer: TextView = findViewById(R.id.singer_name)
-        val songTime: TextView = findViewById(R.id.time)
-        val album: TextView = findViewById(R.id.album)
-        val group: Group = findViewById(R.id.albumGroup)
-        val year: TextView = findViewById(R.id.year)
-        val genre: TextView = findViewById(R.id.genre)
-        val country: TextView = findViewById(R.id.country)
-        timeCount = findViewById(R.id.songTime)
-        val buttonBack = findViewById<ImageButton>(R.id.buttonBackToMenu)
-        playButton = findViewById(R.id.playButton)
-
-        songName.text = track.trackName
-        singer.text = track.artistName
-        songTime.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(track.trackTimeMillis)
-        year.text = track.releaseDate.substring(0, 4)
-        genre.text = track.primaryGenreName
-        country.text = track.country
-        timeCount.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(ZERO_SECONDS)
+        binding.trackName.text = track.trackName
+        binding.artistName.text = track.artistName
+        binding.time.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(track.trackTimeMillis)
+        binding.year.text = track.releaseDate.substring(0, 4)
+        binding.genre.text = track.primaryGenreName
+        binding.country.text = track.country
+        binding.songTime.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(ZERO_SECONDS)
         Glide.with(applicationContext)
             .load(track.artworkUrl100.replaceAfterLast('/', "512x512bb.jpg"))
             .placeholder(R.drawable.placeholder_image)
@@ -90,21 +80,21 @@ class TrackActivity : AppCompatActivity() {
             .transform(
                 RoundedCorners(dpToPx(CORNERS_FOR_IMAGE, this))
             )
-            .into(albumImage)
+            .into(binding.cover)
         if (track.collectionName.isEmpty()) {
-            group.visibility = View.GONE
+            binding.albumGroup.visibility = View.GONE
         } else {
-            album.text = track.collectionName
+            binding.album.text = track.collectionName
         }
         choosePlayImageForPlayButton()
         preparePlayer()
 
-        playButton.setOnClickListener {
+        binding.playButton.setOnClickListener {
             playbackControl()
             mainThreadHandler?.post(myRunnable)
         }
 
-        buttonBack.setOnClickListener {
+        binding.buttonBackToMenu.setOnClickListener {
             finish()
         }
     }
@@ -117,7 +107,7 @@ class TrackActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mainThreadHandler?.removeCallbacks(myRunnable)
-        mediaPlayerUseCase.release()
+        viewModel.release()
     }
 
     private fun createTracksListFromJson(json: String): Track {
@@ -159,27 +149,27 @@ class TrackActivity : AppCompatActivity() {
     }
 
     private fun preparePlayer() {
-        mediaPlayerUseCase.prepare(trackUrl)
+        viewModel.prepare(trackUrl)
         Creator.mediaPlayer.setOnPreparedListener {
-            playButton.isEnabled = true
+            binding.playButton.isEnabled = true
             playerState = STATE_PREPARED
         }
         Creator.mediaPlayer.setOnCompletionListener {
             choosePlayImageForPlayButton()
             playerState = STATE_PREPARED
             mainThreadHandler?.removeCallbacks(myRunnable)
-            timeCount.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(ZERO_SECONDS)
+            binding.songTime.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(ZERO_SECONDS)
         }
     }
 
     private fun startPlayer() {
-        mediaPlayerUseCase.start()
+        viewModel.start()
         choosePauseImageForPlayButton()
         playerState = STATE_PLAYING
     }
 
     private fun pausePlayer() {
-        mediaPlayerUseCase.pause()
+        viewModel.pause()
         choosePlayImageForPlayButton()
         mainThreadHandler?.removeCallbacks(myRunnable)
         playerState = STATE_PAUSED
@@ -187,21 +177,21 @@ class TrackActivity : AppCompatActivity() {
 
     private fun choosePlayImageForPlayButton() {
         if (isDarkThemeEnabled()) {
-            playButton.setImageResource(R.drawable.play_night)
-            playButton.setBackgroundResource(R.drawable.black_round_button)
+            binding.playButton.setImageResource(R.drawable.play_night)
+            binding.playButton.setBackgroundResource(R.drawable.black_round_button)
         } else {
-            playButton.setImageResource(R.drawable.play_day)
-            playButton.setBackgroundResource(R.drawable.white_round_button)
+            binding.playButton.setImageResource(R.drawable.play_day)
+            binding.playButton.setBackgroundResource(R.drawable.white_round_button)
         }
     }
 
     private fun choosePauseImageForPlayButton() {
         if (isDarkThemeEnabled()) {
-            playButton.setImageResource(R.drawable.pause_night)
-            playButton.setBackgroundResource(R.drawable.black_round_button)
+            binding.playButton.setImageResource(R.drawable.pause_night)
+            binding.playButton.setBackgroundResource(R.drawable.black_round_button)
         } else {
-            playButton.setImageResource(R.drawable.pause_day)
-            playButton.setBackgroundResource(R.drawable.white_round_button)
+            binding.playButton.setImageResource(R.drawable.pause_day)
+            binding.playButton.setBackgroundResource(R.drawable.white_round_button)
         }
     }
 }
