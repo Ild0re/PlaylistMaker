@@ -159,6 +159,7 @@ class SearchActivity : AppCompatActivity() {
             binding.recyclerView.visibility = View.GONE
             binding.placeholderText.visibility = View.GONE
             binding.placeholderImage.visibility = View.GONE
+            binding.buttonRefresh.visibility = View.GONE
         }
 
         binding.buttonRefresh.setOnClickListener {
@@ -194,37 +195,36 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun render(state: ScreenState) {
-        val currentRunnable = searchRunnable
-        if (currentRunnable != null) {
-            handler.removeCallbacks(currentRunnable)
-        }
-        val newTracksRunnable = Runnable {
+//        val currentRunnable = searchRunnable
+//        if (currentRunnable != null) {
+//            handler.removeCallbacks(currentRunnable)
+//        }
+//        val newTracksRunnable = Runnable {
             when (state) {
                 is ScreenState.Loading -> showLoading()
                 is ScreenState.Content -> showData(state.data)
-                is ScreenState.Error -> {
-                    binding.buttonRefresh.visibility = View.VISIBLE
-                    showMessage(state.message)
-                    if (isDarkThemeEnabled()) {
-                        binding.placeholderImage.setImageResource(R.drawable.dark_mode_1)
-                    } else {
-                        binding.placeholderImage.setImageResource(R.drawable.light_mode)
-                    }
-                }
-
                 is ScreenState.Empty -> {
-                    showMessage(state.message)
+                    showMessage(getString(R.string.nothing_to_show))
                     if (isDarkThemeEnabled()) {
                         binding.placeholderImage.setImageResource(R.drawable.dark_mode)
                     } else {
                         binding.placeholderImage.setImageResource(R.drawable.light_mode_1)
                     }
                 }
+                is ScreenState.Error -> {
+                    binding.buttonRefresh.visibility = View.VISIBLE
+                    showMessage(getString(R.string.internet_issue))
+                    if (isDarkThemeEnabled()) {
+                        binding.placeholderImage.setImageResource(R.drawable.dark_mode_1)
+                    } else {
+                        binding.placeholderImage.setImageResource(R.drawable.light_mode)
+                    }
+                }
             }
         }
-        searchRunnable = newTracksRunnable
-        handler.post(newTracksRunnable)
-    }
+//        searchRunnable = newTracksRunnable
+//        handler.post(newTracksRunnable)
+//    }
 
     private fun onTrackClickListener(track: Track) {
         if (track !in historyList) {

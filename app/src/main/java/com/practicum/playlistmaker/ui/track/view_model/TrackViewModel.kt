@@ -1,35 +1,42 @@
 package com.practicum.playlistmaker.ui.track.view_model
 
+import android.media.MediaPlayer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.practicum.playlistmaker.creator.Creator
+import com.practicum.playlistmaker.domain.track.interactor.MediaPlayerInteractor
 
-class TrackViewModel: ViewModel() {
-    private val getMediaPlayerIteractor = Creator.provideMediaPlayerUseCase()
+class TrackViewModel(private val interactor: MediaPlayerInteractor): ViewModel() {
+    val mediaPlayer = MediaPlayer()
 
     fun prepare(string: String) {
-        return getMediaPlayerIteractor.prepare(string)
+        interactor.prepare(string)
+        mediaPlayer.setDataSource(string)
+        mediaPlayer.prepareAsync()
     }
 
     fun start() {
-        return getMediaPlayerIteractor.start()
+        interactor.start()
+        mediaPlayer.start()
     }
 
     fun pause() {
-        return getMediaPlayerIteractor.pause()
+        interactor.pause()
+        mediaPlayer.pause()
     }
 
     fun release() {
-        return getMediaPlayerIteractor.release()
+        interactor.release()
+        mediaPlayer.release()
     }
 
     companion object {
         fun factory(): ViewModelProvider.Factory {
             return viewModelFactory {
                 initializer {
-                    TrackViewModel()
+                    TrackViewModel(Creator.provideMediaPlayerUseCase())
                 }
             }
         }

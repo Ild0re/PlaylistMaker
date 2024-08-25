@@ -13,7 +13,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.gson.Gson
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.creator.Creator
 import com.practicum.playlistmaker.databinding.ActivityTrackBinding
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.ui.track.view_model.TrackViewModel
@@ -41,7 +40,7 @@ class TrackActivity : AppCompatActivity() {
                 SimpleDateFormat(
                     "mm:ss",
                     Locale.getDefault()
-                ).format(Creator.mediaPlayer.currentPosition)
+                ).format(viewModel.mediaPlayer.currentPosition)
             mainThreadHandler?.postDelayed(this, DELAY)
         }
     }
@@ -150,11 +149,11 @@ class TrackActivity : AppCompatActivity() {
 
     private fun preparePlayer() {
         viewModel.prepare(trackUrl)
-        Creator.mediaPlayer.setOnPreparedListener {
+        viewModel.mediaPlayer.setOnPreparedListener {
             binding.playButton.isEnabled = true
             playerState = STATE_PREPARED
         }
-        Creator.mediaPlayer.setOnCompletionListener {
+        viewModel.mediaPlayer.setOnCompletionListener {
             choosePlayImageForPlayButton()
             playerState = STATE_PREPARED
             mainThreadHandler?.removeCallbacks(myRunnable)

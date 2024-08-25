@@ -8,7 +8,6 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-
         Creator.initApplication(this)
         val getThemeSharedPreferencesUseCase = Creator.provideThemeStorageUseCase()
         var themeKey = getThemeSharedPreferencesUseCase.getTheme()
@@ -17,5 +16,6 @@ class App : Application() {
             "true" -> darkTheme = true
             else -> darkTheme = false
         }
+        getThemeSharedPreferencesUseCase.saveTheme(darkTheme)
     }
 }

@@ -2,12 +2,14 @@ package com.practicum.playlistmaker.creator
 
 import android.app.Application
 import android.content.Context
-import android.media.MediaPlayer
+import android.content.SharedPreferences
 import com.practicum.playlistmaker.data.network.RetrofitNetworkClient
+import com.practicum.playlistmaker.data.search.HISTORY_PREFERENCES
 import com.practicum.playlistmaker.data.search.SearchRepository
 import com.practicum.playlistmaker.data.search.SearchRepositoryImpl
 import com.practicum.playlistmaker.data.search.TracksStorageRepository
 import com.practicum.playlistmaker.data.search.TracksStorageRepositoryImpl
+import com.practicum.playlistmaker.data.settings.PREFERENCES
 import com.practicum.playlistmaker.data.settings.ThemeStorageRepository
 import com.practicum.playlistmaker.data.settings.ThemeStorageRepositoryImpl
 import com.practicum.playlistmaker.data.sharing.ExternalNavigator
@@ -26,17 +28,18 @@ import com.practicum.playlistmaker.domain.track.impl.MediaPlayerInteractorImpl
 import com.practicum.playlistmaker.domain.track.interactor.MediaPlayerInteractor
 
 object Creator {
-
-    lateinit var application: Application
-
-    val mediaPlayer = MediaPlayer()
+    private lateinit var sharedTracksPreferences: SharedPreferences
+    private lateinit var sharedThemePreferences: SharedPreferences
+    private lateinit var application: Application
 
     fun initApplication(context: Context) {
         application = context as Application
+        sharedTracksPreferences = application.getSharedPreferences(HISTORY_PREFERENCES, Context.MODE_PRIVATE)
+        sharedThemePreferences = application.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
     }
 
     private fun getTracksRepository(): SearchRepository {
-        return SearchRepositoryImpl(RetrofitNetworkClient())
+        return SearchRepositoryImpl(RetrofitNetworkClient(application))
     }
 
     fun provideTracksSearchUseCase(): SearchInteractor {
@@ -44,7 +47,7 @@ object Creator {
     }
 
     private fun getTracksStorageRepository(): TracksStorageRepository {
-        return TracksStorageRepositoryImpl()
+        return TracksStorageRepositoryImpl(sharedTracksPreferences)
     }
 
     fun provideTracksStorageUseCase(): TracksStorageInteractor {
@@ -52,7 +55,7 @@ object Creator {
     }
 
     private fun getThemeStorageRepository(): ThemeStorageRepository {
-        return ThemeStorageRepositoryImpl()
+        return ThemeStorageRepositoryImpl(sharedThemePreferences)
     }
 
     fun provideThemeStorageUseCase(): ThemeStorageInteractor {
@@ -60,7 +63,7 @@ object Creator {
     }
 
     private fun getMediaPlayerRepository(): MediaPlayerRepository {
-        return MediaPlayerRepositoryImpl(mediaPlayer)
+        return MediaPlayerRepositoryImpl()
     }
 
     fun provideMediaPlayerUseCase(): MediaPlayerInteractor {
@@ -68,7 +71,7 @@ object Creator {
     }
 
     private fun getExternalNavigator(): ExternalNavigator {
-        return ExternalNavigatorImpl()
+        return ExternalNavigatorImpl(application)
     }
 
     fun provideSharingInteractor(): SharingInteractor {
