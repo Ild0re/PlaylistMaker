@@ -13,14 +13,15 @@ class SearchInteractorImpl(private val repository: SearchRepository) : SearchInt
 
     override fun search(expression: String, consumer: Consumer<List<Track>>) {
         executor.execute {
-            when(val trackList = expression.let { repository.search(expression) }) {
-                is Resource.Success -> { consumer.consume(trackList.data, null) }
-                is Resource.Error -> { consumer.consume(null, trackList.message) }
+            when (val trackList = expression.let { repository.search(expression) }) {
+                is Resource.Success -> {
+                    consumer.consume(trackList.data, null)
+                }
+
+                is Resource.Error -> {
+                    consumer.consume(null, trackList.message)
+                }
             }
         }
-//        executor.execute {
-//            val trackList = expression.let { repository.search(expression) }
-//            consumer.consume(trackList)
-//        }
     }
 }

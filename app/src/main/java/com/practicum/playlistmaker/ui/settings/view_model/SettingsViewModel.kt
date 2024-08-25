@@ -59,8 +59,10 @@ class SettingsViewModel(
         fun factory(): ViewModelProvider.Factory {
             return viewModelFactory {
                 initializer {
-                    SettingsViewModel(Creator.provideSharingInteractor(),
-                        Creator.provideThemeStorageUseCase())
+                    SettingsViewModel(
+                        Creator.provideSharingInteractor(),
+                        Creator.provideThemeStorageUseCase()
+                    )
                 }
             }
         }

@@ -1,5 +1,8 @@
 package com.practicum.playlistmaker.data.track
 
+import com.practicum.playlistmaker.domain.track.OnCompletionListener
+import com.practicum.playlistmaker.domain.track.OnPreparedListener
+
 interface MediaPlayerRepository {
 
     fun prepare(src: String)
@@ -8,5 +11,11 @@ interface MediaPlayerRepository {
 
     fun pause()
 
-    fun release()
+    fun getCurrentPosition(): Int
+
+    fun setOnPreparedListener(listener: OnPreparedListener)
+
+    fun setOnComplitionListener(listener: OnCompletionListener)
+
+    fun reset()
 }

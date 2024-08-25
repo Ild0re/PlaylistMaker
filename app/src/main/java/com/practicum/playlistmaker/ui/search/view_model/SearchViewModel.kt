@@ -59,8 +59,10 @@ class SearchViewModel(
         fun factory(): ViewModelProvider.Factory {
             return viewModelFactory {
                 initializer {
-                    SearchViewModel(Creator.provideTracksSearchUseCase(),
-                        Creator.provideTracksStorageUseCase())
+                    SearchViewModel(
+                        Creator.provideTracksSearchUseCase(),
+                        Creator.provideTracksStorageUseCase()
+                    )
                 }
             }
         }

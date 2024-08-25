@@ -13,28 +13,20 @@ class RetrofitNetworkClient(private val context: Context) : NetworkClient {
             if (isConnected() == false) {
                 return Response().apply { resultCode = -1 }
             }
-        val resp = RetrofitClient.api.search(dto).execute()
-        val response = resp.body() ?: Response()
-        return response.apply { resultCode = resp.code() }
-    } catch (ex: Exception) {
+            val resp = RetrofitClient.api.search(dto).execute()
+            val response = resp.body() ?: Response()
+            return response.apply { resultCode = resp.code() }
+        } catch (ex: Exception) {
             return Response().apply { resultCode = 400 }
         }
     }
 
-
-//        return try {
-//            val resp = RetrofitClient.api.search(dto).execute()
-//            val response = resp.body() ?: Response()
-//
-//            response.apply { resultCode = resp.code() }
-//        } catch (ex: Exception) {
-//            Response().apply { resultCode = 400 }
-//        }
-
     private fun isConnected(): Boolean {
         val connectivityManager = context.getSystemService(
-            Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+            Context.CONNECTIVITY_SERVICE
+        ) as ConnectivityManager
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         if (capabilities != null) {
             when {
                 capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> return true

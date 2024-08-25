@@ -15,6 +15,8 @@ import com.google.gson.Gson
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.ActivityTrackBinding
 import com.practicum.playlistmaker.domain.models.Track
+import com.practicum.playlistmaker.domain.track.OnCompletionListener
+import com.practicum.playlistmaker.domain.track.OnPreparedListener
 import com.practicum.playlistmaker.ui.track.view_model.TrackViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -40,7 +42,7 @@ class TrackActivity : AppCompatActivity() {
                 SimpleDateFormat(
                     "mm:ss",
                     Locale.getDefault()
-                ).format(viewModel.mediaPlayer.currentPosition)
+                ).format(viewModel.getCurrentPosition())
             mainThreadHandler?.postDelayed(this, DELAY)
         }
     }
@@ -67,7 +69,8 @@ class TrackActivity : AppCompatActivity() {
 
         binding.trackName.text = track.trackName
         binding.artistName.text = track.artistName
-        binding.time.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(track.trackTimeMillis)
+        binding.time.text =
+            SimpleDateFormat("mm:ss", Locale.getDefault()).format(track.trackTimeMillis)
         binding.year.text = track.releaseDate.substring(0, 4)
         binding.genre.text = track.primaryGenreName
         binding.country.text = track.country
@@ -106,7 +109,7 @@ class TrackActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mainThreadHandler?.removeCallbacks(myRunnable)
-        viewModel.release()
+        viewModel.reset()
     }
 
     private fun createTracksListFromJson(json: String): Track {
@@ -149,16 +152,21 @@ class TrackActivity : AppCompatActivity() {
 
     private fun preparePlayer() {
         viewModel.prepare(trackUrl)
-        viewModel.mediaPlayer.setOnPreparedListener {
-            binding.playButton.isEnabled = true
-            playerState = STATE_PREPARED
-        }
-        viewModel.mediaPlayer.setOnCompletionListener {
-            choosePlayImageForPlayButton()
-            playerState = STATE_PREPARED
-            mainThreadHandler?.removeCallbacks(myRunnable)
-            binding.songTime.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(ZERO_SECONDS)
-        }
+        viewModel.setOnPreparedListener(object : OnPreparedListener {
+            override fun onPrepared() {
+                binding.playButton.isEnabled = true
+                playerState = STATE_PREPARED
+            }
+        })
+        viewModel.setOnCompletionListener(object : OnCompletionListener {
+            override fun onCompletion() {
+                choosePlayImageForPlayButton()
+                playerState = STATE_PREPARED
+                mainThreadHandler?.removeCallbacks(myRunnable)
+                binding.songTime.text =
+                    SimpleDateFormat("mm:ss", Locale.getDefault()).format(ZERO_SECONDS)
+            }
+        })
     }
 
     private fun startPlayer() {

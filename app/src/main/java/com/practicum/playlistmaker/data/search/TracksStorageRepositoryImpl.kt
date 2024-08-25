@@ -5,11 +5,13 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.practicum.playlistmaker.domain.models.Track
 
-const val HISTORY_PREFERENCES = "history_preferences"
-const val HISTORY_KEY = "history_key"
 
 class TracksStorageRepositoryImpl(private val sf: SharedPreferences) :
     TracksStorageRepository {
+
+    companion object {
+        private const val HISTORY_KEY = "history_key"
+    }
 
     override fun getTracks(): List<Track> {
 

@@ -16,7 +16,7 @@ class ExternalNavigatorImpl(private val context: Context) : ExternalNavigator {
         return linkLicense
     }
 
-    override fun openEmail(): EmailData  {
+    override fun openEmail(): EmailData {
         val test_email = EmailData(
             "nuruda@yandex.ru",
             context.getString(R.string.buttonSupport),

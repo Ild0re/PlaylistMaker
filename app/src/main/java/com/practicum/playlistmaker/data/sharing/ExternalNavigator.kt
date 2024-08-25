@@ -1,6 +1,5 @@
 package com.practicum.playlistmaker.data.sharing
 
-import android.content.Intent
 import com.practicum.playlistmaker.domain.sharing.model.EmailData
 
 interface ExternalNavigator {
