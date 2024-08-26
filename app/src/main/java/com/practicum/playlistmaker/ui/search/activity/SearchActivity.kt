@@ -12,7 +12,6 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import com.google.gson.Gson
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.ActivitySearchBinding
@@ -20,6 +19,7 @@ import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.presentation.state.ScreenState
 import com.practicum.playlistmaker.ui.search.view_model.SearchViewModel
 import com.practicum.playlistmaker.ui.track.activity.TrackActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SearchActivity : AppCompatActivity() {
 
@@ -37,9 +37,9 @@ class SearchActivity : AppCompatActivity() {
     private var historyList = ArrayList<Track>()
     private val songlistAdapter = SearchAdapter(trackList, ::onTrackClickListener)
     private val historySonglistAdapter = SearchAdapter(historyList, ::onTrackClickListener)
+    private val viewModel by viewModel<SearchViewModel>()
 
     private lateinit var binding: ActivitySearchBinding
-    private lateinit var viewModel: SearchViewModel
 
     private var searchRunnable =
         Runnable {
@@ -68,11 +68,6 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        viewModel = ViewModelProvider(
-            this,
-            SearchViewModel.factory()
-        )[SearchViewModel::class.java]
 
         binding.recyclerViewHistory.adapter = historySonglistAdapter
         binding.recyclerView.adapter = songlistAdapter

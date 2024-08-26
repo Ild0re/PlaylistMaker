@@ -5,10 +5,6 @@ import android.content.SharedPreferences
 
 class ThemeStorageRepositoryImpl(private val sf: SharedPreferences) : ThemeStorageRepository {
 
-    companion object {
-        private const val DARK_THEME = "dark_theme"
-    }
-
     override fun getTheme(): String {
         val theme = sf.getString(DARK_THEME, "")
         return theme.toString()
@@ -20,5 +16,9 @@ class ThemeStorageRepositoryImpl(private val sf: SharedPreferences) : ThemeStora
             .apply()
 
         return theme
+    }
+
+    companion object {
+        private const val DARK_THEME = "dark_theme"
     }
 }
