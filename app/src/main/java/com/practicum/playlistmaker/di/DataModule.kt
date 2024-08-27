@@ -22,9 +22,7 @@ val dataModule = module {
 
     single {
         androidContext()
-            .getSharedPreferences("history_preferences", Context.MODE_PRIVATE)
-        androidContext()
-            .getSharedPreferences("dark_mode_preferences", Context.MODE_PRIVATE)
+            .getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
     }
 
     factory {
