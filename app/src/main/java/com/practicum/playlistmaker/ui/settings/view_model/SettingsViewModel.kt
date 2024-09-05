@@ -4,10 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.practicum.playlistmaker.creator.Creator
 import com.practicum.playlistmaker.domain.settings.interactor.ThemeStorageInteractor
 import com.practicum.playlistmaker.domain.sharing.interactor.SharingInteractor
 
@@ -53,18 +49,5 @@ class SettingsViewModel(
 
     fun getTheme(): Boolean {
         return themeStorageInteractor.getTheme().toBoolean()
-    }
-
-    companion object {
-        fun factory(): ViewModelProvider.Factory {
-            return viewModelFactory {
-                initializer {
-                    SettingsViewModel(
-                        Creator.provideSharingInteractor(),
-                        Creator.provideThemeStorageUseCase()
-                    )
-                }
-            }
-        }
     }
 }

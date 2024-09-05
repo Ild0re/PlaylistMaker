@@ -9,10 +9,6 @@ import com.practicum.playlistmaker.domain.models.Track
 class TracksStorageRepositoryImpl(private val sf: SharedPreferences) :
     TracksStorageRepository {
 
-    companion object {
-        private const val HISTORY_KEY = "history_key"
-    }
-
     override fun getTracks(): List<Track> {
 
         val json =
@@ -32,4 +28,7 @@ class TracksStorageRepositoryImpl(private val sf: SharedPreferences) :
         return historyList
     }
 
+    companion object {
+        private const val HISTORY_KEY = "history_key"
+    }
 }

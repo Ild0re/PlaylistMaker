@@ -8,7 +8,6 @@ import android.os.Looper
 import android.util.TypedValue
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.gson.Gson
@@ -18,6 +17,7 @@ import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.domain.track.OnCompletionListener
 import com.practicum.playlistmaker.domain.track.OnPreparedListener
 import com.practicum.playlistmaker.ui.track.view_model.TrackViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -34,7 +34,7 @@ class TrackActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityTrackBinding
-    private lateinit var viewModel: TrackViewModel
+    private val viewModel by viewModel<TrackViewModel>()
 
     private val myRunnable = object : Runnable {
         override fun run() {
@@ -58,11 +58,6 @@ class TrackActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         mainThreadHandler = Handler(Looper.getMainLooper())
-
-        viewModel = ViewModelProvider(
-            this,
-            TrackViewModel.factory()
-        )[TrackViewModel::class.java]
 
         val track = createTracksListFromJson(receiveIntent().toString())
         trackUrl = track.previewUrl
