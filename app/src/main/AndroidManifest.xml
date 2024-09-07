@@ -20,7 +20,7 @@
             android:name=".ui.search.activity.SearchActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.library.LibraryActivity"
+            android:name=".ui.library.activity.LibraryActivity"
             android:exported="false" />
         <activity android:name=".ui.settings.activity.SettingsActivity"
             android:exported="true" />
