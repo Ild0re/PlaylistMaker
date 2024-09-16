@@ -8,20 +8,22 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.google.gson.Gson
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.databinding.ActivitySearchBinding
+import com.practicum.playlistmaker.databinding.FragmentSearchBinding
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.presentation.state.ScreenState
 import com.practicum.playlistmaker.ui.search.view_model.SearchViewModel
 import com.practicum.playlistmaker.ui.track.activity.TrackActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SearchActivity : AppCompatActivity() {
+class SearchFragment : Fragment() {
 
     companion object {
         private const val CLICK_DEBOUNCE_DELAY = 1000L
@@ -38,8 +40,6 @@ class SearchActivity : AppCompatActivity() {
     private val songlistAdapter = SearchAdapter(trackList, ::onTrackClickListener)
     private val historySonglistAdapter = SearchAdapter(historyList, ::onTrackClickListener)
     private val viewModel by viewModel<SearchViewModel>()
-
-    private lateinit var binding: ActivitySearchBinding
 
     private var searchRunnable =
         Runnable {
@@ -59,15 +59,21 @@ class SearchActivity : AppCompatActivity() {
         outState.putString("text", text)
     }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        text = savedInstanceState.getString("text", "")
+
+    private lateinit var binding: FragmentSearchBinding
+
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentSearchBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivitySearchBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         binding.recyclerViewHistory.adapter = historySonglistAdapter
         binding.recyclerView.adapter = songlistAdapter
@@ -97,10 +103,6 @@ class SearchActivity : AppCompatActivity() {
                 if (hasFocus && binding.inputEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
             binding.cleanHistoryButton.visibility =
                 if (hasFocus && binding.inputEditText.text.isEmpty() && historyList.isEmpty() == false) View.VISIBLE else View.GONE
-        }
-
-        binding.buttonBackToMenu.setOnClickListener {
-            finish()
         }
 
         binding.cleanHistoryButton.setOnClickListener {
@@ -145,7 +147,7 @@ class SearchActivity : AppCompatActivity() {
         binding.clearButton.setOnClickListener {
             binding.inputEditText.setText("")
             val inputMethodManager =
-                getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(binding.clearButton.windowToken, 0)
             binding.clearButton.visibility = View.GONE
             trackList.clear()
@@ -184,8 +186,8 @@ class SearchActivity : AppCompatActivity() {
 
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
         handler.removeCallbacksAndMessages(null)
     }
 
@@ -228,7 +230,7 @@ class SearchActivity : AppCompatActivity() {
             historySonglistAdapter.notifyDataSetChanged()
         }
         if (clickDebounce()) {
-            val intent = Intent(this, TrackActivity::class.java)
+            val intent = Intent(requireContext(), TrackActivity::class.java)
             intent.putExtra("data", Gson().toJson(track))
             startActivity(intent)
         }

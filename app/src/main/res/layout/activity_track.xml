@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:background="?attr/colorSecondary"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.track.activity.TrackActivity">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/left_guideline"
