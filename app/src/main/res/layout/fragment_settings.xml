@@ -2,38 +2,22 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:theme="@style/Theme.PlaylistMaker"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?attr/colorSecondary">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="@dimen/screen_padding"
-        android:layout_marginStart="@dimen/icon_padding">
-
-        <ImageButton
-            android:id="@+id/buttonBackToMenu"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="?attr/colorSecondary"
-            android:src="@drawable/arrowback"
-            app:tint="?attr/colorOnSecondary" />
+    android:background="?attr/colorSecondary"
+    tools:context=".ui.settings.activity.SettingsFragment">
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginTop="14dp"
             android:layout_marginStart="@dimen/screen_padding"
-            android:layout_gravity="center"
             style="@style/MessageTextStyle"
             android:text="@string/settings"
             android:textSize="@dimen/primary_text_size" />
-
-    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
