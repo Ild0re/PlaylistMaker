@@ -17,8 +17,8 @@ val viewModelModule = module {
         SettingsViewModel(get(), get())
     }
 
-    viewModel {
-        TrackViewModel(get())
+    viewModel { (trackIntent: String) ->
+        TrackViewModel(trackIntent)
     }
 
     viewModel {

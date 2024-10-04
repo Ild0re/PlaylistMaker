@@ -1,37 +1,109 @@
 package com.practicum.playlistmaker.ui.track.view_model
 
+import android.media.MediaPlayer
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.practicum.playlistmaker.domain.track.OnCompletionListener
-import com.practicum.playlistmaker.domain.track.OnPreparedListener
-import com.practicum.playlistmaker.domain.track.interactor.MediaPlayerInteractor
+import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
+import com.practicum.playlistmaker.domain.models.Track
+import com.practicum.playlistmaker.presentation.state.PlayerState
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
-class TrackViewModel(private val interactor: MediaPlayerInteractor) : ViewModel() {
+class TrackViewModel(private val trackIntent: String) : ViewModel() {
 
-    fun prepare(string: String) {
-        interactor.prepare(string)
+    val url = createTracksListFromJson(trackIntent).previewUrl
+
+    private var mediaPlayer: MediaPlayer = MediaPlayer()
+
+    private var timerJob: Job? = null
+
+    private val playerState = MutableLiveData<PlayerState>(PlayerState.Default())
+    fun observePlayerState(): LiveData<PlayerState> = playerState
+
+    init {
+        initMediaPlayer()
     }
 
-    fun start() {
-        interactor.start()
+    override fun onCleared() {
+        super.onCleared()
+        releasePlayer()
     }
 
-    fun pause() {
-        interactor.pause()
+    fun onPause() {
+        pausePlayer()
     }
 
-    fun reset() {
-        interactor.reset()
+    fun onReset() {
+        resetPlayer()
     }
 
-    fun getCurrentPosition(): Int {
-        return interactor.getCurrentPosition()
+    fun onPlayButtonClicked() {
+        when(playerState.value) {
+            is PlayerState.Playing -> {
+                pausePlayer()
+            }
+            is PlayerState.Prepared, is PlayerState.Paused -> {
+                startPlayer()
+            }
+            else -> { }
+        }
     }
 
-    fun setOnPreparedListener(listener: OnPreparedListener) {
-        interactor.setOnPreparedListener(listener)
+    private fun initMediaPlayer() {
+        mediaPlayer.setDataSource(url)
+        mediaPlayer.prepareAsync()
+        mediaPlayer.setOnPreparedListener {
+            playerState.postValue(PlayerState.Prepared())
+        }
+        mediaPlayer.setOnCompletionListener {
+            timerJob?.cancel()
+            playerState.postValue(PlayerState.Prepared())
+        }
     }
 
-    fun setOnCompletionListener(listener: OnCompletionListener) {
-        interactor.setOnComplitionListener(listener)
+    private fun startPlayer() {
+        mediaPlayer.start()
+        playerState.postValue(PlayerState.Playing(getCurrentPlayerPosition()))
+        startTimer()
+    }
+
+    private fun pausePlayer() {
+        mediaPlayer.pause()
+        timerJob?.cancel()
+        playerState.postValue(PlayerState.Paused(getCurrentPlayerPosition()))
+    }
+
+    private fun releasePlayer() {
+        mediaPlayer.stop()
+        mediaPlayer.release()
+        playerState.value = PlayerState.Default()
+    }
+
+    private fun resetPlayer() {
+        mediaPlayer.reset()
+        playerState.postValue(PlayerState.Prepared())
+    }
+
+    private fun startTimer() {
+        timerJob = viewModelScope.launch {
+            while (mediaPlayer.isPlaying) {
+                delay(300L)
+                playerState.postValue(PlayerState.Playing(getCurrentPlayerPosition()))
+            }
+        }
+    }
+
+    private fun getCurrentPlayerPosition(): String {
+        return SimpleDateFormat("mm:ss", Locale.getDefault()).format(mediaPlayer.currentPosition) ?: "00:00"
+    }
+
+    private fun createTracksListFromJson(json: String): Track {
+        return Gson().fromJson(json, Track::class.java)
     }
 }
+
