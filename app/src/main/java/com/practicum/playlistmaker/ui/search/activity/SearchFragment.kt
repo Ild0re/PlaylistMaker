@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -14,6 +12,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.FragmentSearchBinding
@@ -21,18 +20,18 @@ import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.presentation.state.ScreenState
 import com.practicum.playlistmaker.ui.search.view_model.SearchViewModel
 import com.practicum.playlistmaker.ui.track.activity.TrackActivity
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SearchFragment : Fragment() {
 
     companion object {
         private const val CLICK_DEBOUNCE_DELAY = 1000L
-        private const val SEARCH_DEBOUNCE_DELAY = 2000L
     }
 
     private var isClickAllowed = true
 
-    private val handler = Handler(Looper.getMainLooper())
     private var text = ""
 
     private val trackList = ArrayList<Track>()
@@ -40,11 +39,6 @@ class SearchFragment : Fragment() {
     private val songlistAdapter = SearchAdapter(trackList, ::onTrackClickListener)
     private val historySonglistAdapter = SearchAdapter(historyList, ::onTrackClickListener)
     private val viewModel by viewModel<SearchViewModel>()
-
-    private var searchRunnable =
-        Runnable {
-            if (!binding.inputEditText.text.isNullOrEmpty()) viewModel.loadData(binding.inputEditText.text.toString())
-        }
 
     private fun isDarkThemeEnabled(): Boolean {
         if (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
@@ -92,7 +86,7 @@ class SearchFragment : Fragment() {
             binding.cleanHistoryButton.visibility = View.VISIBLE
         }
 
-        viewModel.getState().observe(this) { state ->
+        viewModel.getState().observe(viewLifecycleOwner) { state ->
             render(state)
         }
 
@@ -138,7 +132,7 @@ class SearchFragment : Fragment() {
                     if (binding.inputEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
                 binding.cleanHistoryButton.visibility =
                     if (binding.inputEditText.hasFocus() && s?.isEmpty() == true && historyList.isEmpty() == false) View.VISIBLE else View.GONE
-                searchDebounce()
+                viewModel.searchDebounce(changedText = s?.toString() ?: "")
             }
         })
 
@@ -148,13 +142,13 @@ class SearchFragment : Fragment() {
 
         binding.clearButton.setOnClickListener {
             binding.inputEditText.setText("")
+            viewModel.clearJob()
             val inputMethodManager =
                 activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(binding.clearButton.windowToken, 0)
             binding.clearButton.visibility = View.GONE
             trackList.clear()
             songlistAdapter.notifyDataSetChanged()
-            handler.removeCallbacks(searchRunnable)
             binding.recyclerView.visibility = View.GONE
             binding.placeholderText.visibility = View.GONE
             binding.placeholderImage.visibility = View.GONE
@@ -191,7 +185,6 @@ class SearchFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        handler.removeCallbacksAndMessages(null)
     }
 
     private fun render(state: ScreenState) {
@@ -241,16 +234,11 @@ class SearchFragment : Fragment() {
 
     private fun clickDebounce(): Boolean {
         val current = isClickAllowed
-        if (isClickAllowed) {
-            isClickAllowed = false
-            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
+        viewLifecycleOwner.lifecycleScope.launch {
+            delay(CLICK_DEBOUNCE_DELAY)
+            isClickAllowed = true
         }
         return current
-    }
-
-    private fun searchDebounce() {
-        handler.removeCallbacks(searchRunnable)
-        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
     }
 
     private fun showLoading() {

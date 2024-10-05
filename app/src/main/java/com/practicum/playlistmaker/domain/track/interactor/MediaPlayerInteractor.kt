@@ -14,7 +14,13 @@ interface MediaPlayerInteractor {
 
     fun setOnPreparedListener(listener: OnPreparedListener)
 
-    fun setOnComplitionListener(listener: OnCompletionListener)
+    fun setOnCompletionListener(listener: OnCompletionListener)
 
     fun reset()
+
+    fun stop()
+
+    fun release()
+
+    fun isPlaying(): Boolean
 }

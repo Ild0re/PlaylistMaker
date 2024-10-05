@@ -5,17 +5,24 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.practicum.playlistmaker.data.dto.Response
 import com.practicum.playlistmaker.data.repository.NetworkClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class RetrofitNetworkClient(private val context: Context) : NetworkClient {
 
-    override fun doRequest(dto: String): Response {
+    override suspend fun doRequest(dto: String): Response {
         try {
             if (isConnected() == false) {
                 return Response().apply { resultCode = -1 }
             }
-            val resp = RetrofitClient.api.search(dto).execute()
-            val response = resp.body() ?: Response()
-            return response.apply { resultCode = resp.code() }
+            return withContext(Dispatchers.IO) {
+                try{
+                    val response = RetrofitClient.api.search(dto)
+                    response.apply { resultCode = 200 }
+                } catch (e: Throwable) {
+                    Response().apply { resultCode = 500 }
+                }
+            }
         } catch (ex: Exception) {
             return Response().apply { resultCode = 400 }
         }

@@ -34,4 +34,16 @@ class MediaPlayerRepositoryImpl(private val mediaPlayer: MediaPlayer) : MediaPla
     override fun setOnComplitionListener(listener: OnCompletionListener) {
         mediaPlayer.setOnCompletionListener { listener.onCompletion() }
     }
+
+    override fun stop() {
+        mediaPlayer.stop()
+    }
+
+    override fun release() {
+        mediaPlayer.release()
+    }
+
+    override fun isPlaying(): Boolean {
+        return mediaPlayer.isPlaying
+    }
 }
