@@ -18,7 +18,7 @@ val viewModelModule = module {
     }
 
     viewModel { (trackIntent: String) ->
-        TrackViewModel(trackIntent)
+        TrackViewModel(trackIntent, get())
     }
 
     viewModel {
