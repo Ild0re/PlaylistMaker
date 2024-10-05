@@ -29,10 +29,6 @@ class TrackViewModel(private val trackIntent: String, private val interactor: Me
         initMediaPlayer()
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        releasePlayer()
-    }
 
     fun onPause() {
         pausePlayer()
@@ -79,12 +75,6 @@ class TrackViewModel(private val trackIntent: String, private val interactor: Me
         interactor.pause()
         timerJob?.cancel()
         playerState.postValue(PlayerState.Paused(getCurrentPlayerPosition()))
-    }
-
-    private fun releasePlayer() {
-        interactor.stop()
-        interactor.release()
-        playerState.value = PlayerState.Default()
     }
 
     private fun resetPlayer() {
