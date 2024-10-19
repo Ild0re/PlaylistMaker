@@ -3,8 +3,6 @@ package com.practicum.playlistmaker.ui.track.activity
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.TypedValue
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -14,41 +12,23 @@ import com.google.gson.Gson
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.ActivityTrackBinding
 import com.practicum.playlistmaker.domain.models.Track
-import com.practicum.playlistmaker.domain.track.OnCompletionListener
-import com.practicum.playlistmaker.domain.track.OnPreparedListener
 import com.practicum.playlistmaker.ui.track.view_model.TrackViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class TrackActivity : AppCompatActivity() {
 
     companion object {
-        private const val STATE_DEFAULT = 0
-        private const val STATE_PREPARED = 1
-        private const val STATE_PLAYING = 2
-        private const val STATE_PAUSED = 3
-        private const val DELAY = 500L
         private const val ZERO_SECONDS = 0L
         private const val CORNERS_FOR_IMAGE = 8f
     }
 
     private lateinit var binding: ActivityTrackBinding
-    private val viewModel by viewModel<TrackViewModel>()
-
-    private val myRunnable = object : Runnable {
-        override fun run() {
-            binding.songTime.text =
-                SimpleDateFormat(
-                    "mm:ss",
-                    Locale.getDefault()
-                ).format(viewModel.getCurrentPosition())
-            mainThreadHandler?.postDelayed(this, DELAY)
-        }
+    private val viewModel: TrackViewModel by viewModel {
+        parametersOf(receiveIntent())
     }
-
-    private var playerState = STATE_DEFAULT
-    private var mainThreadHandler: Handler? = null
 
     private lateinit var trackUrl: String
 
@@ -56,8 +36,6 @@ class TrackActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityTrackBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        mainThreadHandler = Handler(Looper.getMainLooper())
 
         val track = createTracksListFromJson(receiveIntent().toString())
         trackUrl = track.previewUrl
@@ -84,27 +62,34 @@ class TrackActivity : AppCompatActivity() {
             binding.album.text = track.collectionName
         }
         choosePlayImageForPlayButton()
-        preparePlayer()
-
-        binding.playButton.setOnClickListener {
-            playbackControl()
-            mainThreadHandler?.post(myRunnable)
-        }
 
         binding.buttonBackToMenu.setOnClickListener {
             finish()
+        }
+
+        binding.playButton.setOnClickListener {
+            viewModel.onPlayButtonClicked()
+        }
+
+        viewModel.observePlayerState().observe(this) {
+            binding.playButton.isEnabled = it.isPlayButtonEnabled
+            if (it.buttonText == "PLAY") {
+                choosePlayImageForPlayButton()
+            } else {
+                choosePauseImageForPlayButton()
+            }
+            binding.songTime.text = it.progress
         }
     }
 
     override fun onPause() {
         super.onPause()
-        pausePlayer()
+        viewModel.onPause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mainThreadHandler?.removeCallbacks(myRunnable)
-        viewModel.reset()
+        viewModel.onReset()
     }
 
     private fun createTracksListFromJson(json: String): Track {
@@ -131,50 +116,6 @@ class TrackActivity : AppCompatActivity() {
         val intent = getIntent()
         val data: String? = intent.getStringExtra("data")
         return data
-    }
-
-    private fun playbackControl() {
-        when (playerState) {
-            STATE_PLAYING -> {
-                pausePlayer()
-            }
-
-            STATE_PREPARED, STATE_PAUSED -> {
-                startPlayer()
-            }
-        }
-    }
-
-    private fun preparePlayer() {
-        viewModel.prepare(trackUrl)
-        viewModel.setOnPreparedListener(object : OnPreparedListener {
-            override fun onPrepared() {
-                binding.playButton.isEnabled = true
-                playerState = STATE_PREPARED
-            }
-        })
-        viewModel.setOnCompletionListener(object : OnCompletionListener {
-            override fun onCompletion() {
-                choosePlayImageForPlayButton()
-                playerState = STATE_PREPARED
-                mainThreadHandler?.removeCallbacks(myRunnable)
-                binding.songTime.text =
-                    SimpleDateFormat("mm:ss", Locale.getDefault()).format(ZERO_SECONDS)
-            }
-        })
-    }
-
-    private fun startPlayer() {
-        viewModel.start()
-        choosePauseImageForPlayButton()
-        playerState = STATE_PLAYING
-    }
-
-    private fun pausePlayer() {
-        viewModel.pause()
-        choosePlayImageForPlayButton()
-        mainThreadHandler?.removeCallbacks(myRunnable)
-        playerState = STATE_PAUSED
     }
 
     private fun choosePlayImageForPlayButton() {
