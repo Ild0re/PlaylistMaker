@@ -1,5 +1,6 @@
 package com.practicum.playlistmaker.data.search
 
+import com.practicum.playlistmaker.data.db.AppDatabase
 import com.practicum.playlistmaker.data.dto.TracksSearchResponse
 import com.practicum.playlistmaker.data.repository.NetworkClient
 import com.practicum.playlistmaker.domain.models.Track
@@ -7,7 +8,10 @@ import com.practicum.playlistmaker.presentation.util.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class SearchRepositoryImpl(private val networkClient: NetworkClient) : SearchRepository {
+class SearchRepositoryImpl(
+    private val networkClient: NetworkClient,
+    private val appDatabase: AppDatabase
+) : SearchRepository {
 
     override fun search(expression: String): Flow<Resource<List<Track>>> = flow {
         val response = networkClient.doRequest(expression)
@@ -30,6 +34,12 @@ class SearchRepositoryImpl(private val networkClient: NetworkClient) : SearchRep
                         it.primaryGenreName,
                         it.previewUrl
                     )
+                }
+                val idList = appDatabase.trackDao().getTracksIds()
+                for (i in data) {
+                    if (i.trackId in idList) {
+                        i.isFavorite = true
+                    }
                 }
                 emit(Resource.Success(data))
             }

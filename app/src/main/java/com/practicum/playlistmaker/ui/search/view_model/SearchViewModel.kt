@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.domain.search.interactor.SearchInteractor
 import com.practicum.playlistmaker.domain.search.interactor.TracksStorageInteractor
+import com.practicum.playlistmaker.presentation.state.FavouritesState
 import com.practicum.playlistmaker.presentation.state.ScreenState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -22,8 +23,10 @@ class SearchViewModel(
     }
 
     private val state = MutableLiveData<ScreenState>()
+    private val historyState = MutableLiveData<FavouritesState>()
 
     fun getState(): LiveData<ScreenState> = state
+    fun getHistory(): LiveData<FavouritesState> = historyState
 
     private var latestSearchText: String? = null
 
@@ -47,6 +50,7 @@ class SearchViewModel(
     }
 
     fun loadData(expression: String) {
+        clearJob()
         state.value = ScreenState.Loading
 
         viewModelScope.launch {
@@ -82,8 +86,25 @@ class SearchViewModel(
     }
 
 
-    fun loadHistory(): List<Track> {
-        return trackStorageInteractor.getTrack()
+    fun loadHistory() {
+        viewModelScope.launch {
+            trackStorageInteractor.getTrack()
+                .collect { tracks ->
+                    processHistoryResult(tracks)
+                }
+        }
+    }
+
+    private fun processHistoryResult(tracks: List<Track>) {
+        if (tracks.isEmpty()) {
+            renderState(FavouritesState.Empty("empty"))
+        } else {
+            renderState(FavouritesState.Content(tracks))
+        }
+    }
+
+    private fun renderState(state: FavouritesState) {
+        historyState.postValue(state)
     }
 
     fun saveHistory(list: List<Track>): List<Track> {

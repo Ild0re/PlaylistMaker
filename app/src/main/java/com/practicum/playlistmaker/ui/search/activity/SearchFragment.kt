@@ -17,6 +17,7 @@ import com.google.gson.Gson
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.FragmentSearchBinding
 import com.practicum.playlistmaker.domain.models.Track
+import com.practicum.playlistmaker.presentation.state.FavouritesState
 import com.practicum.playlistmaker.presentation.state.ScreenState
 import com.practicum.playlistmaker.ui.search.view_model.SearchViewModel
 import com.practicum.playlistmaker.ui.track.activity.TrackActivity
@@ -166,24 +167,24 @@ class SearchFragment : Fragment() {
             false
         }
 
-        val spTracks = viewModel.loadHistory()
-        if (spTracks != null) {
-            historyList.clear()
-            historyList.addAll(spTracks)
-            historySonglistAdapter.notifyDataSetChanged()
-        }
-        viewModel.saveHistory(historyList)
 
+        viewModel.loadHistory()
+
+        viewModel.getHistory().observe(viewLifecycleOwner) {
+            renderHistory(it)
+        }
+
+        viewModel.saveHistory(historyList)
     }
 
     override fun onStop() {
         super.onStop()
         viewModel.saveHistory(historyList)
-
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        viewModel.saveHistory(historyList)
         _binding = null
     }
 
@@ -209,6 +210,20 @@ class SearchFragment : Fragment() {
                     binding.placeholderImage.setImageResource(R.drawable.light_mode)
                 }
             }
+        }
+    }
+
+    private fun renderHistory(state: FavouritesState) {
+        when(state) {
+            is FavouritesState.Content -> {
+                val tracks = state.tracks
+                if (tracks != null) {
+                    historyList.clear()
+                    historyList.addAll(tracks)
+                    historySonglistAdapter.notifyDataSetChanged()
+                }
+            }
+            is FavouritesState.Empty -> {}
         }
     }
 

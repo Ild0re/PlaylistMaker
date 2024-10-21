@@ -61,6 +61,7 @@ class TrackActivity : AppCompatActivity() {
         } else {
             binding.album.text = track.collectionName
         }
+        viewModel.favouriteCheck()
         choosePlayImageForPlayButton()
 
         binding.buttonBackToMenu.setOnClickListener {
@@ -71,6 +72,10 @@ class TrackActivity : AppCompatActivity() {
             viewModel.onPlayButtonClicked()
         }
 
+        binding.favoriteButton.setOnClickListener {
+            viewModel.onFavouriteClicked()
+        }
+
         viewModel.observePlayerState().observe(this) {
             binding.playButton.isEnabled = it.isPlayButtonEnabled
             if (it.buttonText == "PLAY") {
@@ -79,6 +84,10 @@ class TrackActivity : AppCompatActivity() {
                 choosePauseImageForPlayButton()
             }
             binding.songTime.text = it.progress
+        }
+
+        viewModel.observeFavouriteState().observe(this) { boolean ->
+            renderBoolean(boolean)
         }
     }
 
@@ -135,6 +144,13 @@ class TrackActivity : AppCompatActivity() {
         } else {
             binding.playButton.setImageResource(R.drawable.pause_day)
             binding.playButton.setBackgroundResource(R.drawable.white_round_button)
+        }
+    }
+
+    private fun renderBoolean(boolean: Boolean) {
+        when(boolean) {
+            true -> binding.favoriteButton.setImageResource(R.drawable.liked)
+            false -> binding.favoriteButton.setImageResource(R.drawable.like)
         }
     }
 }

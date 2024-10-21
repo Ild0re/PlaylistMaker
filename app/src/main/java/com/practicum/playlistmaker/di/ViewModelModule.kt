@@ -18,11 +18,11 @@ val viewModelModule = module {
     }
 
     viewModel { (trackIntent: String) ->
-        TrackViewModel(trackIntent, get())
+        TrackViewModel(trackIntent, get(), get())
     }
 
     viewModel {
-        FavouritesViewModel()
+        FavouritesViewModel(get())
     }
 
     viewModel {
