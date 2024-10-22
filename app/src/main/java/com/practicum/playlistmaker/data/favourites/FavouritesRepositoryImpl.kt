@@ -23,7 +23,7 @@ class FavouritesRepositoryImpl(
 
     override suspend fun getTracks(): Flow<List<Track>> = flow {
         val trackEntities = appDatabase.trackDao().getTracks()
-        val tracks = convertFromTrackEntity(trackEntities).reversed()
+        val tracks = convertFromTrackEntity(trackEntities)
         for (i in tracks) {
             i.isFavorite = true
         }

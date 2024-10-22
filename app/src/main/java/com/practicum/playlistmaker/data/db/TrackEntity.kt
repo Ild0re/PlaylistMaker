@@ -16,4 +16,6 @@ data class TrackEntity(
     val country: String,
     val primaryGenreName: String,
     val previewUrl: String,
+    val isFavourite: Boolean,
+    val addedDate: Long
 )
