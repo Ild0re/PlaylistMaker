@@ -5,7 +5,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface TracksStorageRepository {
 
-    fun getTracks(): Flow<List<Track>>
+    fun getTracks(): List<Track>
+
+    fun getTracksFlow(data: List<Track>): Flow<List<Track>>
 
     fun saveTracks(historyList: List<Track>): List<Track>
 

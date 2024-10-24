@@ -168,7 +168,14 @@ class SearchFragment : Fragment() {
         }
 
 
-        viewModel.loadHistory()
+        viewModel.checkFavourites()
+
+        val tracks = viewModel.loadHistory()
+        if (tracks != null) {
+            historyList.clear()
+            historyList.addAll(tracks)
+            historySonglistAdapter.notifyDataSetChanged()
+        }
 
         viewModel.getHistory().observe(viewLifecycleOwner) {
             renderHistory(it)
@@ -223,7 +230,9 @@ class SearchFragment : Fragment() {
                     historySonglistAdapter.notifyDataSetChanged()
                 }
             }
-            is FavouritesState.Empty -> {}
+            is FavouritesState.Empty -> {
+
+            }
         }
     }
 

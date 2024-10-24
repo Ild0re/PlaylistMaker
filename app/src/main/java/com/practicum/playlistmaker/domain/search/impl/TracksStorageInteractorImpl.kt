@@ -7,8 +7,12 @@ import kotlinx.coroutines.flow.Flow
 
 class TracksStorageInteractorImpl(private val repository: TracksStorageRepository) :
     TracksStorageInteractor {
-    override fun getTrack(): Flow<List<Track>> {
+    override fun getTrack(): List<Track> {
         return repository.getTracks()
+    }
+
+    override fun getTracksFlow(data: List<Track>): Flow<List<Track>> {
+        return repository.getTracksFlow(data)
     }
 
     override fun saveTracks(trackList: List<Track>): List<Track> {

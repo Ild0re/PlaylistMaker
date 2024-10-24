@@ -86,9 +86,13 @@ class SearchViewModel(
     }
 
 
-    fun loadHistory() {
+    fun loadHistory(): List<Track> {
+        return trackStorageInteractor.getTrack()
+    }
+
+    fun checkFavourites() {
         viewModelScope.launch {
-            trackStorageInteractor.getTrack()
+            trackStorageInteractor.getTracksFlow(loadHistory())
                 .collect { tracks ->
                     processHistoryResult(tracks)
                 }
@@ -96,7 +100,7 @@ class SearchViewModel(
     }
 
     private fun processHistoryResult(tracks: List<Track>) {
-        if (tracks.isEmpty()) {
+        if (tracks.isNullOrEmpty()) {
             renderState(FavouritesState.Empty("empty"))
         } else {
             renderState(FavouritesState.Content(tracks))

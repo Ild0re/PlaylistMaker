@@ -15,12 +15,15 @@ class TracksStorageRepositoryImpl(
 ) :
     TracksStorageRepository {
 
-    override fun getTracks(): Flow<List<Track>> = flow {
+    override fun getTracks(): List<Track> {
         val json =
-            sf.getString(HISTORY_KEY, null)
+            sf.getString(HISTORY_KEY, null) ?: return listOf<Track>().toMutableList()
 
         val type = object : TypeToken<ArrayList<Track>>() {}.type
-        val data: List<Track> = Gson().fromJson(json, type)
+        return Gson().fromJson(json, type)
+    }
+
+    override fun getTracksFlow(data: List<Track>): Flow<List<Track>> = flow {
         val idList = appDatabase.trackDao().getTracksIds()
         for (i in data) {
             if (i.trackId in idList) {
