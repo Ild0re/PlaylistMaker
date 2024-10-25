@@ -24,6 +24,7 @@
         android:id="@+id/placeholderText"
         style="@style/PlaceholderText"
         android:layout_marginStart="@dimen/button_size"
+        android:layout_marginEnd="@dimen/button_size"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="434dp"
         android:text="@string/favouritesToast"

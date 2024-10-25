@@ -7,7 +7,7 @@ import com.practicum.playlistmaker.databinding.SonglistViewBinding
 import com.practicum.playlistmaker.domain.models.Track
 
 class SearchAdapter(
-    private val data: List<Track>,
+    private var data: List<Track>,
     private val onTrackClickListener: (Track) -> Unit,
 ) : RecyclerView.Adapter<TrackViewHolder>() {
 

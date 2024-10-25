@@ -30,7 +30,7 @@ class FavouritesFragment : Fragment() {
 
     private var isClickAllowed = true
     private val trackList = ArrayList<Track>()
-    private var adapter: FavouritesAdapter? = null
+    private val adapter = FavouritesAdapter(trackList, ::onTrackClickListener)
 
     private var _binding: FragmentFavouritesBinding? = null
     private val binding: FragmentFavouritesBinding
@@ -47,21 +47,22 @@ class FavouritesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = FavouritesAdapter(trackList, ::onTrackClickListener)
         binding.recyclerView.adapter = adapter
 
         viewModel.loadData()
         viewModel.observeState.observe(viewLifecycleOwner) { state ->
             render(state)
-            adapter?.notifyDataSetChanged()
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding.recyclerView.adapter = null
-        adapter = null
         _binding = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadData()
     }
 
     private fun isDarkThemeEnabled(): Boolean {
@@ -82,6 +83,7 @@ class FavouritesFragment : Fragment() {
     private fun showPlaceholder() {
         binding.placeholderImage.visibility = View.VISIBLE
         binding.placeholderText.visibility = View.VISIBLE
+        binding.recyclerView.visibility = View.GONE
         if (isDarkThemeEnabled()) {
             binding.placeholderImage.setImageResource(R.drawable.dark_mode)
         } else {
@@ -91,6 +93,8 @@ class FavouritesFragment : Fragment() {
 
     private fun showData(tracks: List<Track>) {
         binding.recyclerView.visibility = View.VISIBLE
+        binding.placeholderImage.visibility = View.GONE
+        binding.placeholderText.visibility = View.GONE
         trackList.clear()
         trackList.addAll(tracks)
         adapter?.notifyDataSetChanged()
