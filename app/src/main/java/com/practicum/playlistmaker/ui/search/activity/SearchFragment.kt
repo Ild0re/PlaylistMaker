@@ -158,8 +158,8 @@ class SearchFragment : Fragment() {
             false
         }
 
-        viewModel.loadHistory()
         viewModel.checkFavourites()
+        viewModel.loadHistory()
 
         viewModel.getHistory().observe(viewLifecycleOwner) {
             renderHistory(it)

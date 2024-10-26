@@ -28,6 +28,8 @@ class TracksStorageRepositoryImpl(
         for (i in data) {
             if (i.trackId in idList) {
                 i.isFavorite = true
+            } else {
+                i.isFavorite = false
             }
         }
         emit(data)

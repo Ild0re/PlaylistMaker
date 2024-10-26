@@ -9,10 +9,10 @@ import androidx.room.Query
 @Dao
 interface TrackDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(entity = TrackEntity::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTrack(track: TrackEntity)
 
-    @Delete
+    @Delete(entity = TrackEntity::class)
     suspend fun deleteTrack(track: TrackEntity)
 
     @Query("SELECT * FROM track_table ORDER BY addedDate DESC")

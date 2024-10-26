@@ -58,7 +58,7 @@
             android:singleLine="true"
             android:textColor="@color/black"
             android:textColorHint="?attr/colorPrimaryVariant"
-            android:textCursorDrawable="@color/blue" />
+            android:textCursorDrawable="@drawable/color_coursor" />
 
         <ImageButton
             android:id="@+id/clearButton"
