@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker.ui.search.activity
+package com.practicum.playlistmaker.ui.library.activity
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -6,17 +6,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.practicum.playlistmaker.databinding.SonglistViewBinding
 import com.practicum.playlistmaker.domain.models.Track
 
-class SearchAdapter(
-    private var data: List<Track>,
+class FavouritesAdapter(
+    private val data: List<Track>,
     private val onTrackClickListener: (Track) -> Unit,
-) : RecyclerView.Adapter<TrackViewHolder>() {
+) : RecyclerView.Adapter<FavouritesViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavouritesViewHolder {
         val layoutInspector = LayoutInflater.from(parent.context)
-        return TrackViewHolder(SonglistViewBinding.inflate(layoutInspector, parent, false))
+        return FavouritesViewHolder(SonglistViewBinding.inflate(layoutInspector, parent, false))
     }
 
-    override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: FavouritesViewHolder, position: Int) {
         val track = data[position]
         holder.bind(track)
         holder.itemView.setOnClickListener {

@@ -17,6 +17,7 @@ import com.google.gson.Gson
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.FragmentSearchBinding
 import com.practicum.playlistmaker.domain.models.Track
+import com.practicum.playlistmaker.presentation.state.FavouritesState
 import com.practicum.playlistmaker.presentation.state.ScreenState
 import com.practicum.playlistmaker.ui.search.view_model.SearchViewModel
 import com.practicum.playlistmaker.ui.track.activity.TrackActivity
@@ -36,6 +37,7 @@ class SearchFragment : Fragment() {
 
     private val trackList = ArrayList<Track>()
     private var historyList = ArrayList<Track>()
+
     private val songlistAdapter = SearchAdapter(trackList, ::onTrackClickListener)
     private val historySonglistAdapter = SearchAdapter(historyList, ::onTrackClickListener)
     private val viewModel by viewModel<SearchViewModel>()
@@ -70,6 +72,7 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
 
         binding.recyclerViewHistory.adapter = historySonglistAdapter
         binding.recyclerView.adapter = songlistAdapter
@@ -141,18 +144,7 @@ class SearchFragment : Fragment() {
         }
 
         binding.clearButton.setOnClickListener {
-            binding.inputEditText.setText("")
-            viewModel.clearJob()
-            val inputMethodManager =
-                activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-            inputMethodManager?.hideSoftInputFromWindow(binding.clearButton.windowToken, 0)
-            binding.clearButton.visibility = View.GONE
-            trackList.clear()
-            songlistAdapter.notifyDataSetChanged()
-            binding.recyclerView.visibility = View.GONE
-            binding.placeholderText.visibility = View.GONE
-            binding.placeholderImage.visibility = View.GONE
-            binding.buttonRefresh.visibility = View.GONE
+            clearScreen()
         }
 
         binding.buttonRefresh.setOnClickListener {
@@ -166,31 +158,40 @@ class SearchFragment : Fragment() {
             false
         }
 
-        val spTracks = viewModel.loadHistory()
-        if (spTracks != null) {
-            historyList.clear()
-            historyList.addAll(spTracks)
-            historySonglistAdapter.notifyDataSetChanged()
-        }
-        viewModel.saveHistory(historyList)
+        viewModel.checkFavourites()
+        viewModel.loadHistory()
 
+        viewModel.getHistory().observe(viewLifecycleOwner) {
+            renderHistory(it)
+        }
+
+        viewModel.saveHistory(historyList)
     }
 
     override fun onStop() {
         super.onStop()
         viewModel.saveHistory(historyList)
-
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        viewModel.saveHistory(historyList)
         _binding = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadHistory()
+        viewModel.checkFavourites()
     }
 
     private fun render(state: ScreenState) {
         when (state) {
             is ScreenState.Loading -> showLoading()
-            is ScreenState.Content -> showData(state.data)
+            is ScreenState.Content -> {
+                showData(state.data)
+            }
+
             is ScreenState.Empty -> {
                 showMessage(getString(R.string.nothing_to_show))
                 if (isDarkThemeEnabled()) {
@@ -212,19 +213,35 @@ class SearchFragment : Fragment() {
         }
     }
 
-    private fun onTrackClickListener(track: Track) {
-        if (track !in historyList) {
-            historyList.add(0, track)
-            historySonglistAdapter.notifyDataSetChanged()
-            if (historyList.size > 10) {
-                historyList.removeLast()
-                historySonglistAdapter.notifyDataSetChanged()
+    private fun renderHistory(state: FavouritesState) {
+        when (state) {
+            is FavouritesState.Content -> {
+                val tracks = state.tracks
+                if (tracks != null) {
+                    historyList.clear()
+                    historyList.addAll(tracks)
+                    historySonglistAdapter.notifyDataSetChanged()
+                }
             }
-        } else {
-            historyList.remove(track)
-            historyList.add(0, track)
+
+            is FavouritesState.Empty -> {
+                binding.historyTextView.visibility = View.GONE
+                binding.recyclerViewHistory.visibility = View.GONE
+                binding.cleanHistoryButton.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun onTrackClickListener(track: Track) {
+        historyList.removeIf { it.trackId == track.trackId }
+        historyList.add(0, track)
+        historySonglistAdapter.notifyDataSetChanged()
+        if (historyList.size > 10) {
+            historyList.removeLast()
             historySonglistAdapter.notifyDataSetChanged()
         }
+
+
         if (clickDebounce()) {
             val intent = Intent(requireContext(), TrackActivity::class.java)
             intent.putExtra("data", Gson().toJson(track))
@@ -272,5 +289,20 @@ class SearchFragment : Fragment() {
             binding.placeholderText.visibility = View.GONE
             binding.placeholderImage.visibility = View.GONE
         }
+    }
+
+    private fun clearScreen() {
+        binding.inputEditText.setText("")
+        viewModel.clearJob()
+        val inputMethodManager =
+            activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        inputMethodManager?.hideSoftInputFromWindow(binding.clearButton.windowToken, 0)
+        binding.clearButton.visibility = View.GONE
+        trackList.clear()
+        songlistAdapter.notifyDataSetChanged()
+        binding.recyclerView.visibility = View.GONE
+        binding.placeholderText.visibility = View.GONE
+        binding.placeholderImage.visibility = View.GONE
+        binding.buttonRefresh.visibility = View.GONE
     }
 }

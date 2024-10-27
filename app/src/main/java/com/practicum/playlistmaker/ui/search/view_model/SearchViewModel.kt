@@ -1,5 +1,6 @@
 package com.practicum.playlistmaker.ui.search.view_model
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.domain.search.interactor.SearchInteractor
 import com.practicum.playlistmaker.domain.search.interactor.TracksStorageInteractor
+import com.practicum.playlistmaker.presentation.state.FavouritesState
 import com.practicum.playlistmaker.presentation.state.ScreenState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -22,8 +24,10 @@ class SearchViewModel(
     }
 
     private val state = MutableLiveData<ScreenState>()
+    private val historyState = MutableLiveData<FavouritesState>()
 
     fun getState(): LiveData<ScreenState> = state
+    fun getHistory(): LiveData<FavouritesState> = historyState
 
     private var latestSearchText: String? = null
 
@@ -47,6 +51,7 @@ class SearchViewModel(
     }
 
     fun loadData(expression: String) {
+        clearJob()
         state.value = ScreenState.Loading
 
         viewModelScope.launch {
@@ -66,6 +71,7 @@ class SearchViewModel(
         when {
             errorMessage != null -> {
                 val error = ScreenState.Error("Ошибка со связью")
+                Log.e("ERROR", errorMessage)
                 state.postValue(error)
             }
 
@@ -84,6 +90,27 @@ class SearchViewModel(
 
     fun loadHistory(): List<Track> {
         return trackStorageInteractor.getTrack()
+    }
+
+    fun checkFavourites() {
+        viewModelScope.launch {
+            trackStorageInteractor.getTracksFlow(loadHistory())
+                .collect { tracks ->
+                    processHistoryResult(tracks)
+                }
+        }
+    }
+
+    private fun processHistoryResult(tracks: List<Track>) {
+        if (tracks.isNullOrEmpty()) {
+            renderState(FavouritesState.Empty("empty"))
+        } else {
+            renderState(FavouritesState.Content(tracks))
+        }
+    }
+
+    private fun renderState(state: FavouritesState) {
+        historyState.postValue(state)
     }
 
     fun saveHistory(list: List<Track>): List<Track> {

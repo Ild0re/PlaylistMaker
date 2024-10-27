@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
+import com.practicum.playlistmaker.domain.favourites.FavouritesInteractor
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.domain.track.OnCompletionListener
 import com.practicum.playlistmaker.domain.track.OnPreparedListener
@@ -16,14 +17,20 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class TrackViewModel(private val trackIntent: String, private val interactor: MediaPlayerInteractor) : ViewModel() {
+class TrackViewModel(
+    private val trackIntent: String, private val interactor: MediaPlayerInteractor,
+    private val favouritesInteractor: FavouritesInteractor
+) : ViewModel() {
 
-    val url = createTracksListFromJson(trackIntent).previewUrl
+    val track = createTracksListFromJson(trackIntent)
+    private val url = track.previewUrl
 
     private var timerJob: Job? = null
 
     private val playerState = MutableLiveData<PlayerState>(PlayerState.Default())
     fun observePlayerState(): LiveData<PlayerState> = playerState
+    private val favouriteState = MutableLiveData<Boolean>()
+    fun observeFavouriteState(): LiveData<Boolean> = favouriteState
 
     init {
         initMediaPlayer()
@@ -39,25 +46,49 @@ class TrackViewModel(private val trackIntent: String, private val interactor: Me
     }
 
     fun onPlayButtonClicked() {
-        when(playerState.value) {
+        when (playerState.value) {
             is PlayerState.Playing -> {
                 pausePlayer()
             }
+
             is PlayerState.Prepared, is PlayerState.Paused -> {
                 startPlayer()
             }
-            else -> { }
+
+            else -> {}
+        }
+    }
+
+    fun onFavouriteClicked() {
+        viewModelScope.launch {
+            if (track.isFavorite == false) {
+                favouritesInteractor.insertTrack(track)
+                track.isFavorite = true
+                favouriteState.postValue(true)
+            } else {
+                favouritesInteractor.deleteTrack(track)
+                track.isFavorite = false
+                favouriteState.postValue(false)
+            }
+        }
+    }
+
+    fun favouriteCheck() {
+        if (track.isFavorite == false) {
+            favouriteState.postValue(false)
+        } else {
+            favouriteState.postValue(true)
         }
     }
 
     private fun initMediaPlayer() {
         interactor.prepare(url)
-        interactor.setOnPreparedListener(object: OnPreparedListener {
+        interactor.setOnPreparedListener(object : OnPreparedListener {
             override fun onPrepared() {
                 playerState.postValue(PlayerState.Prepared())
             }
         })
-        interactor.setOnCompletionListener(object: OnCompletionListener {
+        interactor.setOnCompletionListener(object : OnCompletionListener {
             override fun onCompletion() {
                 timerJob?.cancel()
                 playerState.postValue(PlayerState.Prepared())
@@ -92,7 +123,10 @@ class TrackViewModel(private val trackIntent: String, private val interactor: Me
     }
 
     private fun getCurrentPlayerPosition(): String {
-        return SimpleDateFormat("mm:ss", Locale.getDefault()).format(interactor.getCurrentPosition()) ?: "00:00"
+        return SimpleDateFormat(
+            "mm:ss",
+            Locale.getDefault()
+        ).format(interactor.getCurrentPosition()) ?: "00:00"
     }
 
     private fun createTracksListFromJson(json: String): Track {
