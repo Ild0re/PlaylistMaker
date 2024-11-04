@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSecondary"
-    tools:context=".ui.library.activity.FavouritesFragment">
+    tools:context=".ui.library.activity.favourites.FavouritesFragment">
 
     <ImageView
         android:id="@+id/placeholderImage"

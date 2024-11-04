@@ -5,13 +5,18 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.ActivityTrackBinding
+import com.practicum.playlistmaker.domain.models.Playlist
 import com.practicum.playlistmaker.domain.models.Track
+import com.practicum.playlistmaker.presentation.state.PlaylistsState
+import com.practicum.playlistmaker.ui.playlist.activity.CreatePlaylistFragment
 import com.practicum.playlistmaker.ui.track.view_model.TrackViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
@@ -30,12 +35,16 @@ class TrackActivity : AppCompatActivity() {
         parametersOf(receiveIntent())
     }
 
+    private val playlist = ArrayList<Playlist>()
+    private val adapter = PlaylistsTracksAdapter(playlist, ::onPlaylistClickListener)
+
     private lateinit var trackUrl: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTrackBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
 
         val track = createTracksListFromJson(receiveIntent().toString())
         trackUrl = track.previewUrl
@@ -61,6 +70,9 @@ class TrackActivity : AppCompatActivity() {
         } else {
             binding.album.text = track.collectionName
         }
+
+        binding.recyclerView.adapter = adapter
+
         viewModel.favouriteCheck()
         choosePlayImageForPlayButton()
 
@@ -89,6 +101,54 @@ class TrackActivity : AppCompatActivity() {
         viewModel.observeFavouriteState().observe(this) { boolean ->
             renderBoolean(boolean)
         }
+
+        viewModel.observePlaylistState().observe(this) { state ->
+            render(state)
+        }
+
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.playlistsBottomSheet).apply {
+            state = BottomSheetBehavior.STATE_HIDDEN
+        }
+
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+
+                when (newState) {
+                    BottomSheetBehavior.STATE_HIDDEN -> {
+                        binding.overlay.visibility = View.GONE
+                        binding.recyclerView.visibility = View.GONE
+                        binding.addToPlaylist.visibility = View.GONE
+                        binding.topBar.visibility = View.GONE
+                        binding.buttonNewPlaylist.visibility = View.GONE
+                    }
+
+                    else -> {
+                        adapter.notifyDataSetChanged()
+                        binding.overlay.visibility = View.VISIBLE
+                        binding.recyclerView.visibility = View.VISIBLE
+                        binding.addToPlaylist.visibility = View.VISIBLE
+                        binding.topBar.visibility = View.VISIBLE
+                        binding.buttonNewPlaylist.visibility = View.VISIBLE
+                    }
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+        })
+
+        binding.seenButton.setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+
+        binding.buttonNewPlaylist.setOnClickListener {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainerView, CreatePlaylistFragment())
+                .addToBackStack(null)
+                .commit()
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        }
     }
 
     override fun onPause() {
@@ -100,6 +160,12 @@ class TrackActivity : AppCompatActivity() {
         super.onDestroy()
         viewModel.onReset()
     }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadData()
+    }
+
 
     private fun createTracksListFromJson(json: String): Track {
         return Gson().fromJson(json, Track::class.java)
@@ -148,9 +214,30 @@ class TrackActivity : AppCompatActivity() {
     }
 
     private fun renderBoolean(boolean: Boolean) {
-        when(boolean) {
+        when (boolean) {
             true -> binding.favoriteButton.setImageResource(R.drawable.liked)
             false -> binding.favoriteButton.setImageResource(R.drawable.like)
+        }
+    }
+
+    private fun onPlaylistClickListener(playlist: Playlist) {
+        if (!viewModel.checkTrackInPlaylist(playlist)) {
+            Toast.makeText(this, "Трек уже добавлен в плейлист ${playlist.name}", Toast.LENGTH_SHORT).show()
+        } else {
+            viewModel.updatePlaylist(playlist)
+            Toast.makeText(this, "Добавлено в плейлист ${playlist.name}", Toast.LENGTH_SHORT).show()
+        }
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun render(state: PlaylistsState) {
+        when(state) {
+            is PlaylistsState.Empty -> binding.recyclerView.visibility = View.GONE
+            is PlaylistsState.Content -> {
+                playlist.clear()
+                playlist.addAll(state.playlists)
+                adapter.notifyDataSetChanged()
+            }
         }
     }
 }

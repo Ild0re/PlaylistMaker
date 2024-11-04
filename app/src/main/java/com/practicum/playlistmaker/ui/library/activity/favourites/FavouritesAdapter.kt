@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker.ui.library.activity
+package com.practicum.playlistmaker.ui.library.activity.favourites
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

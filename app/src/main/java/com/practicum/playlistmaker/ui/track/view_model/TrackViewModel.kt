@@ -6,11 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.practicum.playlistmaker.domain.favourites.FavouritesInteractor
+import com.practicum.playlistmaker.domain.models.Playlist
 import com.practicum.playlistmaker.domain.models.Track
+import com.practicum.playlistmaker.domain.playlists.PlaylistInteractor
 import com.practicum.playlistmaker.domain.track.OnCompletionListener
 import com.practicum.playlistmaker.domain.track.OnPreparedListener
 import com.practicum.playlistmaker.domain.track.interactor.MediaPlayerInteractor
 import com.practicum.playlistmaker.presentation.state.PlayerState
+import com.practicum.playlistmaker.presentation.state.PlaylistsState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -19,7 +22,8 @@ import java.util.Locale
 
 class TrackViewModel(
     private val trackIntent: String, private val interactor: MediaPlayerInteractor,
-    private val favouritesInteractor: FavouritesInteractor
+    private val favouritesInteractor: FavouritesInteractor,
+    private val playlistInteractor: PlaylistInteractor
 ) : ViewModel() {
 
     val track = createTracksListFromJson(trackIntent)
@@ -31,6 +35,8 @@ class TrackViewModel(
     fun observePlayerState(): LiveData<PlayerState> = playerState
     private val favouriteState = MutableLiveData<Boolean>()
     fun observeFavouriteState(): LiveData<Boolean> = favouriteState
+    private val playlistsState = MutableLiveData<PlaylistsState>()
+    fun observePlaylistState(): LiveData<PlaylistsState> = playlistsState
 
     init {
         initMediaPlayer()
@@ -131,6 +137,42 @@ class TrackViewModel(
 
     private fun createTracksListFromJson(json: String): Track {
         return Gson().fromJson(json, Track::class.java)
+    }
+
+    fun loadData() {
+        viewModelScope.launch {
+            playlistInteractor.getPlaylists()
+                .collect { playlists -> processResult(playlists) }
+        }
+    }
+
+    private fun processResult(playlists: List<Playlist>) {
+        if (playlists.isEmpty()) {
+            renderState(PlaylistsState.Empty("empty"))
+        } else {
+            renderState(PlaylistsState.Content(playlists))
+        }
+    }
+
+    private fun renderState(state: PlaylistsState) {
+        playlistsState.postValue(state)
+    }
+
+    fun checkTrackInPlaylist(playlist: Playlist): Boolean {
+        if (track.trackId in playlist.trackList) {
+            return false
+        } else {
+            return true
+        }
+    }
+
+    fun updatePlaylist(playlist: Playlist) {
+        if (checkTrackInPlaylist(playlist)  == true) {
+            viewModelScope.launch {
+                playlistInteractor.updatePlaylist(track, playlist)
+                playlistInteractor.insertTrackToPlaylist(track)
+            }
+        }
     }
 }
 
