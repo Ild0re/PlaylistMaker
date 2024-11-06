@@ -7,4 +7,5 @@
     <dimen name="button_size">24dp</dimen>
     <dimen name="icon_padding">8dp</dimen>
     <dimen name="margin_12">12dp</dimen>
+    <dimen name="icon">2dp</dimen>
 </resources>
