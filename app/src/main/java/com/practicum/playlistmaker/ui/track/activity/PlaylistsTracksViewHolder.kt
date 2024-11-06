@@ -2,7 +2,10 @@ package com.practicum.playlistmaker.ui.track.activity
 
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.BottomSheetViewBinding
 import com.practicum.playlistmaker.domain.models.Playlist
@@ -13,9 +16,13 @@ class PlaylistsTracksViewHolder(val binding: BottomSheetViewBinding) : RecyclerV
         Glide.with(itemView)
             .load(playlist.path)
             .placeholder(R.drawable.placeholder)
-            .centerCrop()
-            .transform(
-                RoundedCorners(8)
+            .apply(
+                RequestOptions().transform(
+                    MultiTransformation(
+                        CenterCrop(),
+                        RoundedCorners(itemView.resources.getDimensionPixelSize(R.dimen.icon))
+                    )
+                )
             )
             .into(binding.playlistImage)
         binding.playlistName.text = playlist.name

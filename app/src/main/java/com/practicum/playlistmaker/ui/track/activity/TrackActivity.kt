@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
@@ -31,6 +32,7 @@ class TrackActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityTrackBinding
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
     private val viewModel: TrackViewModel by viewModel {
         parametersOf(receiveIntent())
     }
@@ -106,7 +108,7 @@ class TrackActivity : AppCompatActivity() {
             render(state)
         }
 
-        val bottomSheetBehavior = BottomSheetBehavior.from(binding.playlistsBottomSheet).apply {
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.playlistsBottomSheet).apply {
             state = BottomSheetBehavior.STATE_HIDDEN
         }
 
@@ -125,6 +127,7 @@ class TrackActivity : AppCompatActivity() {
                     }
 
                     else -> {
+                        viewModel.loadData()
                         adapter.notifyDataSetChanged()
                         binding.overlay.visibility = View.VISIBLE
                         binding.recyclerView.visibility = View.VISIBLE
@@ -164,6 +167,7 @@ class TrackActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.loadData()
+        adapter.notifyDataSetChanged()
     }
 
 
@@ -226,6 +230,7 @@ class TrackActivity : AppCompatActivity() {
         } else {
             viewModel.updatePlaylist(playlist)
             Toast.makeText(this, "Добавлено в плейлист ${playlist.name}", Toast.LENGTH_SHORT).show()
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         }
         adapter.notifyDataSetChanged()
     }

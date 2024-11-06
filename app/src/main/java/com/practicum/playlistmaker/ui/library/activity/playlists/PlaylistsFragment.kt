@@ -19,6 +19,7 @@ class PlaylistsFragment : Fragment() {
 
     companion object {
         fun newInstance() = PlaylistsFragment()
+        const val GRID_COLUMNS = 2
     }
 
     private val viewModel by viewModel<PlaylistsViewModel>()
@@ -40,7 +41,7 @@ class PlaylistsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.recyclerView.layoutManager =  GridLayoutManager(requireContext(), 2)
+        binding.recyclerView.layoutManager =  GridLayoutManager(requireContext(), GRID_COLUMNS)
         binding.recyclerView.adapter = adapter
 
         binding.buttonNewPlaylist.setOnClickListener{

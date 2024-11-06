@@ -8,17 +8,20 @@ import android.os.Bundle
 import android.os.Environment
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.practicum.playlistmaker.R
@@ -34,7 +37,6 @@ class CreatePlaylistFragment : Fragment() {
 
     companion object {
         fun newInstance() = CreatePlaylistFragment()
-        private const val CORNERS_FOR_IMAGE = 8f
     }
 
     private val viewModel by viewModel<CreatePlaylistViewModel>()
@@ -44,6 +46,7 @@ class CreatePlaylistFragment : Fragment() {
         get() = _binding!!
 
     lateinit var confirmDialog: MaterialAlertDialogBuilder
+    lateinit var onBackPressedCallback: OnBackPressedCallback
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,19 +60,7 @@ class CreatePlaylistFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonBackToMenu.setOnClickListener {
-            if (binding.image.drawable != null || binding.textInTitle.text!!.isNotEmpty() || binding.textInDescription.text!!.isNotEmpty()) {
-                confirmDialog = MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Завершить создание плейлиста?")
-                    .setMessage("Все несохраненные данные будут потеряны")
-                    .setNeutralButton("Отмена") { dialog, which ->
-
-                    }.setPositiveButton("Закрыть") { dialog, which ->
-                        requireActivity().supportFragmentManager.popBackStack()
-                    }
-                confirmDialog.show()
-            } else {
-                requireActivity().supportFragmentManager.popBackStack()
-            }
+            checkExitDialog()
         }
 
         val pickMedia =
@@ -77,9 +68,13 @@ class CreatePlaylistFragment : Fragment() {
                 if (uri != null) {
                     Glide.with(requireContext())
                         .load(uri)
-                        .centerCrop()
-                        .transform(
-                            RoundedCorners(dpToPx(CORNERS_FOR_IMAGE, requireContext()))
+                        .apply(
+                            RequestOptions().transform(
+                                MultiTransformation(
+                                    CenterCrop(),
+                                    RoundedCorners(requireContext().resources.getDimensionPixelSize(R.dimen.icon_padding))
+                                )
+                            )
                         )
                         .into(binding.image)
                     saveImageToPrivateStorage(uri)
@@ -120,11 +115,21 @@ class CreatePlaylistFragment : Fragment() {
             requireActivity().supportFragmentManager.popBackStack()
             Toast.makeText(requireContext(), "Плейлист ${binding.textInTitle.text} создан", Toast.LENGTH_SHORT).show()
         }
+
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                checkExitDialog()
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
+
     }
 
 
     override fun onDestroyView() {
         super.onDestroyView()
+        onBackPressedCallback.remove()
         _binding = null
     }
 
@@ -148,13 +153,14 @@ class CreatePlaylistFragment : Fragment() {
         }
     }
 
+
     private fun saveImageToPrivateStorage(uri: Uri) {
         val filePath =
             File(requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myalbum")
         if (!filePath.exists()) {
             filePath.mkdirs()
         }
-        val file = File(filePath, "$binding.textInTitle.text.toString()")
+        val file = File(filePath, "$binding")
         val inputStream = requireContext().contentResolver.openInputStream(uri)
         val outputStream = FileOutputStream(file)
         BitmapFactory
@@ -164,15 +170,23 @@ class CreatePlaylistFragment : Fragment() {
 
     private fun getFilePath(): String {
         val filePath = File(requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "myalbum")
-        val file = File(filePath, "$binding.textInTitle.text.toString()")
+        val file = File(filePath, "$binding")
         return file.toString()
     }
 
-    private fun dpToPx(dp: Float, context: Context): Int {
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dp,
-            context.resources.displayMetrics
-        ).toInt()
+    private fun checkExitDialog() {
+        if (binding.image.drawable != null || binding.textInTitle.text!!.isNotEmpty() || binding.textInDescription.text!!.isNotEmpty()) {
+            confirmDialog = MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Завершить создание плейлиста?")
+                .setMessage("Все несохраненные данные будут потеряны")
+                .setNeutralButton("Отмена") { dialog, which ->
+
+                }.setPositiveButton("Закрыть") { dialog, which ->
+                    requireActivity().supportFragmentManager.popBackStack()
+                }
+            confirmDialog.show()
+        } else {
+            requireActivity().supportFragmentManager.popBackStack()
+        }
     }
 }

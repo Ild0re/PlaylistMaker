@@ -41,6 +41,7 @@
         android:layout_marginStart="@dimen/button_size"
         android:layout_marginEnd="@dimen/button_size"
         android:layout_marginBottom="32dp"
+        android:scaleType="centerCrop"
         android:background="@drawable/image_button"
         app:layout_constraintBottom_toTopOf="@id/title"
         app:layout_constraintDimensionRatio="H,1:1"

@@ -32,7 +32,6 @@
         android:id="@+id/placeholderText"
         style="@style/PlaceholderText"
         android:text="@string/playlistToast"
-        android:layout_marginBottom="408dp"
         android:layout_marginStart="@dimen/button_size"
         android:layout_marginEnd="@dimen/button_size"
         android:layout_gravity="center"

@@ -14,6 +14,7 @@
         android:id="@+id/playlistImage"
         android:layout_width="45dp"
         android:layout_height="45dp"
+        android:scaleType="centerCrop"
         android:layout_gravity="start" />
 
     <LinearLayout
@@ -32,7 +33,7 @@
             android:layout_gravity="start"
             android:ellipsize="end"
             android:maxLines="1"
-            tools:text="Track Name" />
+            tools:text="[Track Name]" />
 
         <TextView
             android:id="@+id/trackCount"
@@ -45,7 +46,7 @@
             app:layout_constraintEnd_toStartOf="@id/dot"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Track Singer" />
+            tools:text="[Track Singer]" />
 
     </LinearLayout>
 
