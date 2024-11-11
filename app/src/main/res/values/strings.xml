@@ -34,4 +34,10 @@
     <string name="description">Описание</string>
     <string name="title">Название*</string>
     <string name="addToPlaylist">Добавить в плейлист</string>
+    <string name="sharePlaylist">Поделиться</string>
+    <string name="editPlaylist">Редактировать информацию</string>
+    <string name="deletePlaylist">Удалить плейлист</string>
+    <string name="noTracks">В этом плейлисте нет списка треков, которым можно поделиться</string>
+    <string name="edit">Редактировать</string>
+    <string name="save">Сохранить</string>
 </resources>

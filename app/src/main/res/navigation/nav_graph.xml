@@ -46,10 +46,33 @@
         <action
             android:id="@+id/action_playlistsFragment_to_createPlaylistFragment"
             app:destination="@id/createPlaylistFragment" />
+        <action
+            android:id="@+id/action_playlistsFragment_to_pickPlaylistFragment"
+            app:destination="@id/pickPlaylistFragment" />
     </fragment>
     <fragment
         android:id="@+id/createPlaylistFragment"
-        android:name="com.practicum.playlistmaker.ui.playlist.activity.CreatePlaylistFragment"
+        android:name="com.practicum.playlistmaker.ui.playlist.createPlaylist.activity.CreatePlaylistFragment"
         android:label="fragment_create_playlist"
         tools:layout="@layout/fragment_create_playlist" />
+    <fragment
+        android:id="@+id/pickPlaylistFragment"
+        android:name="com.practicum.playlistmaker.ui.playlist.pickPlaylist.PickPlaylistFragment"
+        android:label="fragment_pick_playlist"
+        tools:layout="@layout/fragment_pick_playlist" >
+        <action
+            android:id="@+id/action_pickPlaylistFragment_to_trackActivity"
+            app:destination="@id/trackActivity" />
+        <action
+            android:id="@+id/action_pickPlaylistFragment_to_playlistsFragment"
+            app:destination="@id/playlistsFragment" />
+        <action
+            android:id="@+id/action_pickPlaylistFragment_to_changePlaylistFragment3"
+            app:destination="@id/changePlaylistFragment" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/changePlaylistFragment"
+        android:name="com.practicum.playlistmaker.ui.playlist.changePlaylist.ChangePlaylistFragment"
+        android:label="ChangePlaylistFragment" />
 </navigation>

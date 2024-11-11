@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker.ui.playlist.activity
+package com.practicum.playlistmaker.ui.playlist.createPlaylist.activity
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -27,22 +27,22 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.FragmentCreatePlaylistBinding
 import com.practicum.playlistmaker.domain.models.Playlist
-import com.practicum.playlistmaker.ui.playlist.view_model.CreatePlaylistViewModel
+import com.practicum.playlistmaker.ui.playlist.createPlaylist.activity.view_model.CreatePlaylistViewModel
 import com.practicum.playlistmaker.ui.root.RootActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 import java.io.FileOutputStream
 
-class CreatePlaylistFragment : Fragment() {
+open class CreatePlaylistFragment : Fragment() {
 
     companion object {
         fun newInstance() = CreatePlaylistFragment()
     }
 
-    private val viewModel by viewModel<CreatePlaylistViewModel>()
+    open val viewModel by viewModel<CreatePlaylistViewModel>()
 
-    private var _binding: FragmentCreatePlaylistBinding? = null
-    private val binding: FragmentCreatePlaylistBinding
+    var _binding: FragmentCreatePlaylistBinding? = null
+    val binding: FragmentCreatePlaylistBinding
         get() = _binding!!
 
     lateinit var confirmDialog: MaterialAlertDialogBuilder
