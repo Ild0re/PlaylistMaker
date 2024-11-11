@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.FragmentPlaylistsBinding
 import com.practicum.playlistmaker.domain.models.Playlist
@@ -28,7 +30,7 @@ class PlaylistsFragment : Fragment() {
         get() = _binding!!
 
     private val playlist = ArrayList<Playlist>()
-    private val adapter = PlaylistsAdapter(playlist)
+    private val adapter = PlaylistsAdapter(playlist, ::onPlaylistClickListener)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -65,6 +67,8 @@ class PlaylistsFragment : Fragment() {
         super.onResume()
         viewModel.loadData()
         adapter.notifyDataSetChanged()
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView).visibility =
+            View.VISIBLE
     }
 
     private fun isDarkThemeEnabled(): Boolean {
@@ -100,5 +104,11 @@ class PlaylistsFragment : Fragment() {
         playlist.clear()
         playlist.addAll(playlists)
         adapter.notifyDataSetChanged()
+    }
+
+    private fun onPlaylistClickListener(playlist: Playlist) {
+        val bundle = Bundle()
+        bundle.putInt("id",playlist.id)
+        findNavController().navigate(R.id.pickPlaylistFragment, bundle)
     }
 }

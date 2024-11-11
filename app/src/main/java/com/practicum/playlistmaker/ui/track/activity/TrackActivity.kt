@@ -17,7 +17,7 @@ import com.practicum.playlistmaker.databinding.ActivityTrackBinding
 import com.practicum.playlistmaker.domain.models.Playlist
 import com.practicum.playlistmaker.domain.models.Track
 import com.practicum.playlistmaker.presentation.state.PlaylistsState
-import com.practicum.playlistmaker.ui.playlist.activity.CreatePlaylistFragment
+import com.practicum.playlistmaker.ui.playlist.createPlaylist.activity.CreatePlaylistFragment
 import com.practicum.playlistmaker.ui.track.view_model.TrackViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
