@@ -77,6 +77,7 @@ class PickPlaylistFragment : Fragment() {
 
         requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView).visibility =
             View.GONE
+
         binding.recyclerView.adapter = adapter
 
         viewModel.loadData()
@@ -219,14 +220,30 @@ class PickPlaylistFragment : Fragment() {
                     .centerCrop()
                     .into(binding.image)
 
+                if (binding.tvTrackCount.text == "0 треков") {
+                    Toast.makeText(requireContext(), "В этом плейлисте нет треков", Toast.LENGTH_SHORT).show()
+                }
+
                 viewModel.getTracksFromPlaylists(playlist.trackList)
 
                 lifecycleScope.launch {
                     viewModel.tracksFromPlaylist.collect { tracks ->
                         var count: Long = 0
                         tracks.forEach { count += it.trackTimeMillis }
-                        binding.tvTimeCount.text =
-                            SimpleDateFormat("mm:ss", Locale.getDefault()).format(count)
+                        binding.tvTimeCount.text = "${
+                            SimpleDateFormat(
+                                "mm",
+                                Locale.getDefault()
+                            ).format(count)
+                        } ${
+                            getEndingMinute(
+                                SimpleDateFormat(
+                                    "mm",
+                                    Locale.getDefault()
+                                ).format(count).toInt()
+                            )
+                        }"
+
                     }
                 }
 
@@ -255,6 +272,15 @@ class PickPlaylistFragment : Fragment() {
             1 -> return "трек"
             2, 3, 4 -> return "трека"
             else -> return "треков"
+        }
+    }
+
+    private fun getEndingMinute(number: Int): String {
+        val lastDigit = number % 10
+        when (lastDigit) {
+            1 -> return "минута"
+            2, 3, 4 -> return "минуты"
+            else -> return "минут"
         }
     }
 

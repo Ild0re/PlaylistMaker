@@ -81,7 +81,7 @@ class PickPlaylistViewModel(val id: Int, private val interactor: PlaylistInterac
     }
 
     private fun buildText(playlist: Playlist, list: List<Track>): String {
-        return "${playlist.trackCount} ${getEndingString(playlist.trackCount)}\n" +
+        return "${playlist.name}\n${playlist.description}\n${playlist.trackCount} ${getEndingString(playlist.trackCount)}\n" +
                 list.withIndex().joinToString("\n") { (index, track) ->
                     "${index + 1}. ${track.artistName} - ${track.trackName} (${
                         SimpleDateFormat(
